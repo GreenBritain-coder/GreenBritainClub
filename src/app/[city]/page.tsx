@@ -9,8 +9,8 @@ export async function generateMetadata({ params }: CityPageProps): Promise<Metad
   const cityName = decodeURIComponent(city);
   
   return {
-    title: Cannabis in ${cityName} | GreenBritain.Club,
-    description: Find the best cannabis information and community in ${cityName}. Join GreenBritain.Club for local cannabis news, reviews, and connections.,
+    title: Cannabis in {cityName} | GreenBritain.Club,
+    description: Find the best cannabis information and community in {cityName}. Join GreenBritain.Club for local cannabis news, reviews, and connections.,
   };
 }
 
