@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/app/lib/mongodb';
 import { hash } from 'bcrypt';
+import { sendMembershipConfirmation } from '@/app/lib/email';
 
 export async function POST(request: Request) {
   try {
@@ -75,6 +76,25 @@ export async function POST(request: Request) {
 
     // Insert user into database
     const result = await db.collection('users').insertOne(user);
+
+    // Send confirmation email
+    try {
+      const emailResult = await sendMembershipConfirmation(
+        email,
+        firstName,
+        lastName,
+        tier
+      );
+
+      if (!emailResult.success) {
+        console.error('Failed to send confirmation email:', emailResult.error);
+      } else {
+        console.log(`Confirmation email sent successfully to ${email}`);
+      }
+    } catch (emailError) {
+      console.error('Email sending error:', emailError);
+      // Don't fail the registration if email fails
+    }
 
     // Return success response
     return NextResponse.json(
