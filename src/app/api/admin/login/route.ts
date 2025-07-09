@@ -1,4 +1,4 @@
-﻿export async function POST(request) {
+﻿export async function POST(request: Request) {
   const { username, password } = await request.json();
   if (username === "admin" && password === "greenbritain2024") {
     return new Response(JSON.stringify({ token: "success" }), { 
