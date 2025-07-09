@@ -30,7 +30,7 @@ export default function AdminLogin() {
       if (response.ok) {
         const { token } = await response.json();
         localStorage.setItem("adminToken", token);
-        router.push("/admin/dashboard");
+        router.push("/management");
       } else {
         setError("Invalid credentials");
       }

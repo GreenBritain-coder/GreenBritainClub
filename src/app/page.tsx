@@ -26,6 +26,18 @@ export default function Home() {
             </div>
             <div className="flex items-center space-x-4">
               <Link 
+                href="/blog" 
+                className="text-white hover:text-green-400 font-medium transition-colors"
+              >
+                Blog
+              </Link>
+              <Link 
+                href="/membership" 
+                className="text-white hover:text-green-400 font-medium transition-colors"
+              >
+                Membership
+              </Link>
+              <Link 
                 href="#telegram" 
                 className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-full font-semibold transition-colors flex items-center space-x-2"
               >
@@ -59,10 +71,16 @@ export default function Home() {
               <span>Join @GBShopXBot</span>
             </Link>
             <Link 
-              href="#cities"
+              href="/blog"
               className="border-2 border-green-400 text-green-400 hover:bg-green-400 hover:text-white px-8 py-4 rounded-full font-bold text-lg transition-colors"
             >
-              Find Your City
+              Explore Our Blog
+            </Link>
+            <Link 
+              href="/membership"
+              className="border-2 border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white px-8 py-4 rounded-full font-bold text-lg transition-colors"
+            >
+              Join Membership
             </Link>
           </div>
         </div>
@@ -100,6 +118,229 @@ export default function Home() {
             </div>
             <h3 className="text-xl font-bold text-white mb-2">Secure & Private</h3>
             <p className="text-green-200">Complete privacy and security with encrypted communications and discreet service.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Membership Section */}
+      <section className="container mx-auto px-4 py-16">
+        <h2 className="text-4xl font-bold text-white text-center mb-4">
+          Exclusive <span className="text-green-400">Membership</span> Benefits
+        </h2>
+        <p className="text-xl text-green-200 text-center mb-12 max-w-3xl mx-auto">
+          Join our community with a membership tier that suits your needs and unlock exclusive benefits
+        </p>
+        
+        <div className="grid md:grid-cols-3 gap-8">
+          {/* Sapphire Tier */}
+          <div className="bg-black/20 backdrop-blur-sm rounded-lg overflow-hidden border border-blue-400/30 transition-transform hover:scale-105">
+            <div className="bg-blue-500/20 p-6 text-center border-b border-blue-400/30">
+              <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-white font-bold text-xl">S</span>
+              </div>
+              <h3 className="text-2xl font-bold text-blue-400 mb-2">Sapphire</h3>
+              <p className="text-white text-3xl font-bold">Free</p>
+            </div>
+            <div className="p-6">
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-blue-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-white/90">Access to basic blog content</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-blue-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-white/90">Monthly newsletter</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-blue-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-white/90">Community forum access</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-blue-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-white/90">Limited discounts on products</span>
+                </li>
+              </ul>
+              <Link 
+                href="/membership"
+                className="block bg-blue-500 hover:bg-blue-600 text-white text-center px-6 py-3 rounded-full font-semibold transition-colors"
+              >
+                Join Free
+              </Link>
+            </div>
+          </div>
+          
+          {/* Ruby Tier */}
+          <div className="bg-black/20 backdrop-blur-sm rounded-lg overflow-hidden border border-red-400/30 transform scale-105 shadow-lg shadow-red-900/20">
+            <div className="bg-red-500/20 p-6 text-center border-b border-red-400/30 relative">
+              <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                POPULAR
+              </div>
+              <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-white font-bold text-xl">R</span>
+              </div>
+              <h3 className="text-2xl font-bold text-red-400 mb-2">Ruby</h3>
+              <p className="text-white text-3xl font-bold">£10<span className="text-lg">/month</span></p>
+            </div>
+            <div className="p-6">
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-red-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-white/90">All Sapphire benefits</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-red-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-white/90">Exclusive content access</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-red-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-white/90">Priority customer support</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-red-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-white/90">10% discount on all products</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-red-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-white/90">Monthly cannabis samples</span>
+                </li>
+              </ul>
+              <Link 
+                href="/membership"
+                className="block bg-red-500 hover:bg-red-600 text-white text-center px-6 py-3 rounded-full font-semibold transition-colors"
+              >
+                Subscribe Now
+              </Link>
+            </div>
+          </div>
+          
+          {/* Diamond Tier */}
+          <div className="bg-black/20 backdrop-blur-sm rounded-lg overflow-hidden border border-purple-400/30 transition-transform hover:scale-105">
+            <div className="bg-purple-500/20 p-6 text-center border-b border-purple-400/30">
+              <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-white font-bold text-xl">D</span>
+              </div>
+              <h3 className="text-2xl font-bold text-purple-400 mb-2">Diamond</h3>
+              <p className="text-white text-3xl font-bold">£15.99<span className="text-lg">/month</span></p>
+            </div>
+            <div className="p-6">
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-purple-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-white/90">All Ruby benefits</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-purple-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-white/90">VIP event invitations</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-purple-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-white/90">Early access to new products</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-purple-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-white/90">20% discount on all products</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-purple-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-white/90">Premium cannabis samples monthly</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-purple-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-white/90">Personal cannabis consultant</span>
+                </li>
+              </ul>
+              <Link 
+                href="/membership"
+                className="block bg-purple-500 hover:bg-purple-600 text-white text-center px-6 py-3 rounded-full font-semibold transition-colors"
+              >
+                Get Diamond
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Blog Highlight Section */}
+      <section className="container mx-auto px-4 py-16">
+        <h2 className="text-4xl font-bold text-white text-center mb-12">
+          Latest from Our <span className="text-green-400">Blog</span>
+        </h2>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <Link href="/blog/cannabis-legalization-uk" className="bg-black/20 backdrop-blur-sm rounded-lg overflow-hidden border border-green-400/20 hover:border-green-400/40 transition-colors">
+            <div className="h-48 bg-green-800 relative">
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/70 flex items-end p-4">
+                <h3 className="text-xl font-bold text-white">Cannabis Legalization in the UK</h3>
+              </div>
+            </div>
+            <div className="p-4">
+              <p className="text-green-300 text-sm mb-3">December 10, 2023</p>
+              <p className="text-white/80 mb-4">A comprehensive overview of cannabis legalization across the UK, examining regional differences and policy developments.</p>
+              <div className="text-green-400 font-medium flex items-center">
+                Read More
+                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </Link>
+          
+          <Link href="/blog/benefits-of-cbd-for-anxiety" className="bg-black/20 backdrop-blur-sm rounded-lg overflow-hidden border border-green-400/20 hover:border-green-400/40 transition-colors">
+            <div className="h-48 bg-green-800 relative">
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/70 flex items-end p-4">
+                <h3 className="text-xl font-bold text-white">The Benefits of CBD for Anxiety</h3>
+              </div>
+            </div>
+            <div className="p-4">
+              <p className="text-green-300 text-sm mb-3">October 15, 2023</p>
+              <p className="text-white/80 mb-4">Discover how CBD can help manage anxiety and stress through its interaction with the endocannabinoid system.</p>
+              <div className="text-green-400 font-medium flex items-center">
+                Read More
+                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </Link>
+          
+          <div className="bg-green-700/30 backdrop-blur-sm rounded-lg overflow-hidden border border-green-400/40 flex flex-col items-center justify-center p-8 text-center">
+            <h3 className="text-2xl font-bold text-white mb-4">Explore More Articles</h3>
+            <p className="text-green-200 mb-6">Discover our full collection of articles, guides, and news about cannabis.</p>
+            <Link 
+              href="/blog"
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full font-semibold transition-colors"
+            >
+              Visit Our Blog
+            </Link>
           </div>
         </div>
       </section>
@@ -158,15 +399,79 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-black/40 border-t border-green-400/20">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <p className="text-green-300 mb-4">
-              © 2024 GreenBritain.Club - Premium Cannabis Community
+      <footer className="bg-black/30 backdrop-blur-sm border-t border-green-400/20 py-8">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            <div>
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-xl">GB</span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">GreenBritain.Club</h3>
+                  <p className="text-green-300 text-sm">Premium Cannabis Community</p>
+                </div>
+              </div>
+              <p className="text-green-200 mb-4">
+                Your premier destination for premium cannabis products across the UK.
+              </p>
+            </div>
+            
+            <div>
+              <h4 className="text-lg font-bold text-white mb-4">Quick Links</h4>
+              <ul className="space-y-2">
+                <li>
+                  <Link href="/" className="text-green-300 hover:text-green-400 transition-colors">
+                    Home
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/blog" className="text-green-300 hover:text-green-400 transition-colors">
+                    Blog
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/membership" className="text-green-300 hover:text-green-400 transition-colors">
+                    Membership
+                  </Link>
+                </li>
+                <li>
+                  <a href="#cities" className="text-green-300 hover:text-green-400 transition-colors">
+                    UK Cities
+                  </a>
+                </li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="text-lg font-bold text-white mb-4">Connect With Us</h4>
+              <p className="text-green-200 mb-4">
+                Join our Telegram community for exclusive deals and updates.
+              </p>
+              <a 
+                href="#telegram"
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-full font-semibold transition-colors inline-flex items-center space-x-2"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
+                </svg>
+                <span>@GBShopXBot</span>
+              </a>
+            </div>
+          </div>
+          
+          <div className="border-t border-green-400/20 pt-8 flex flex-col md:flex-row justify-between items-center">
+            <p className="text-green-300 text-sm mb-4 md:mb-0">
+              &copy; {new Date().getFullYear()} GreenBritain.Club. All rights reserved.
             </p>
-            <p className="text-green-400 text-sm">
-              Age 18+ Only • UK Residents • Discreet & Secure Service
-            </p>
+            <div className="flex space-x-4">
+              <a href="#" className="text-green-300 hover:text-green-400 transition-colors">
+                Privacy Policy
+              </a>
+              <a href="#" className="text-green-300 hover:text-green-400 transition-colors">
+                Terms of Service
+              </a>
+            </div>
           </div>
         </div>
       </footer>
