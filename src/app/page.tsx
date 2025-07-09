@@ -175,9 +175,9 @@ export default async function Home() {
           <div className="bg-black/20 backdrop-blur-sm rounded-lg overflow-hidden border border-blue-400/30 transition-transform hover:scale-105">
             <div className="bg-blue-500/20 p-6 text-center border-b border-blue-400/30">
               <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-white font-bold text-xl">S</span>
+                <span className="text-white font-bold text-3xl">💎</span>
               </div>
-              <h3 className="text-2xl font-bold text-blue-400 mb-2">Sapphire</h3>
+              <h3 className="text-2xl font-bold text-blue-400 mb-2">💎 Sapphire</h3>
               <p className="text-white text-3xl font-bold">Free</p>
             </div>
             <div className="p-6">
@@ -223,9 +223,9 @@ export default async function Home() {
                 POPULAR
               </div>
               <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-white font-bold text-xl">R</span>
+                <span className="text-white font-bold text-3xl">♦️</span>
               </div>
-              <h3 className="text-2xl font-bold text-red-400 mb-2">Ruby</h3>
+              <h3 className="text-2xl font-bold text-red-400 mb-2">♦️ Ruby</h3>
               <p className="text-white text-3xl font-bold">£10<span className="text-lg">/month</span></p>
             </div>
             <div className="p-6">
@@ -274,9 +274,9 @@ export default async function Home() {
           <div className="bg-black/20 backdrop-blur-sm rounded-lg overflow-hidden border border-purple-400/30 transition-transform hover:scale-105">
             <div className="bg-purple-500/20 p-6 text-center border-b border-purple-400/30">
               <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-white font-bold text-xl">D</span>
+                <span className="text-white font-bold text-3xl">💎</span>
               </div>
-              <h3 className="text-2xl font-bold text-purple-400 mb-2">Diamond</h3>
+              <h3 className="text-2xl font-bold text-purple-400 mb-2">💎 Diamond</h3>
               <p className="text-white text-3xl font-bold">£15.99<span className="text-lg">/month</span></p>
             </div>
             <div className="p-6">
@@ -322,7 +322,7 @@ export default async function Home() {
                 href="/membership"
                 className="block bg-purple-500 hover:bg-purple-600 text-white text-center px-6 py-3 rounded-full font-semibold transition-colors"
               >
-                Get Diamond
+                Get 💎 Diamond
               </Link>
             </div>
           </div>

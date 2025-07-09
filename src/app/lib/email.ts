@@ -23,10 +23,10 @@ export async function sendMembershipConfirmation(
     const transporter = createTransporter();
 
     // Determine tier details
-    const tierDetails = {
-      sapphire: {
-        name: 'Sapphire (Free)',
-        price: 'Free',
+         const tierDetails = {
+       sapphire: {
+         name: '💎 Sapphire (Free)',
+         price: 'Free',
         benefits: [
           'Access to basic blog content',
           'Monthly newsletter',
@@ -34,9 +34,9 @@ export async function sendMembershipConfirmation(
           'Limited discount offers'
         ]
       },
-      ruby: {
-        name: 'Ruby',
-        price: '£10/month',
+             ruby: {
+         name: '♦️ Ruby',
+         price: '£10/month',
         benefits: [
           'All Sapphire benefits',
           'Exclusive premium content',
@@ -45,9 +45,9 @@ export async function sendMembershipConfirmation(
           'Monthly cannabis samples'
         ]
       },
-      diamond: {
-        name: 'Diamond',
-        price: '£15.99/month',
+             diamond: {
+         name: '💎 Diamond',
+         price: '£15.99/month',
         benefits: [
           'All Ruby benefits',
           'VIP event invitations',

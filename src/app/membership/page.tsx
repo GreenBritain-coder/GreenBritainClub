@@ -9,7 +9,7 @@ export default function Membership() {
   const tiers = [
     {
       id: 'sapphire',
-      name: 'Sapphire',
+      name: '💎 Sapphire',
       price: 'Free',
       color: 'blue',
       features: [
@@ -21,7 +21,7 @@ export default function Membership() {
     },
     {
       id: 'ruby',
-      name: 'Ruby',
+      name: '♦️ Ruby',
       price: '£10/month',
       color: 'red',
       features: [
@@ -34,7 +34,7 @@ export default function Membership() {
     },
     {
       id: 'diamond',
-      name: 'Diamond',
+      name: '💎 Diamond',
       price: '£15.99/month',
       color: 'purple',
       features: [
@@ -149,8 +149,8 @@ export default function Membership() {
                   onClick={() => handleTierSelect(tier.id)}
                 >
                   <div className={`w-16 h-16 ${colorClasses.bg} rounded-full flex items-center justify-center mx-auto mb-4`}>
-                    <span className="text-white font-bold text-xl">
-                      {tier.name.charAt(0)}
+                    <span className="text-white font-bold text-3xl">
+                      {tier.id === 'sapphire' ? '💎' : tier.id === 'ruby' ? '♦️' : '💎'}
                     </span>
                   </div>
                   <h3 className={`text-2xl font-bold ${colorClasses.text} text-center mb-2`}>
