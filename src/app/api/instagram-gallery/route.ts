@@ -9,7 +9,6 @@ const sampleGalleryItems = [
     caption: 'Embracing the natural beauty of cannabis culture 🌿✨',
     likes: 1247,
     type: 'image',
-    isCarousel: false,
     isActive: true,
     sortOrder: 1,
     createdAt: new Date(),
@@ -20,7 +19,6 @@ const sampleGalleryItems = [
     caption: 'Premium quality products for our community members 💎',
     likes: 892,
     type: 'image',
-    isCarousel: false,
     isActive: true,
     sortOrder: 2,
     createdAt: new Date(),
@@ -31,7 +29,6 @@ const sampleGalleryItems = [
     caption: 'Join our growing community across the UK 🇬🇧',
     likes: 1564,
     type: 'image',
-    isCarousel: true,
     isActive: true,
     sortOrder: 3,
     createdAt: new Date(),
@@ -42,7 +39,6 @@ const sampleGalleryItems = [
     caption: 'Discover the benefits of our premium membership tiers 🌟',
     likes: 743,
     type: 'image',
-    isCarousel: false,
     isActive: true,
     sortOrder: 4,
     createdAt: new Date(),
@@ -53,7 +49,6 @@ const sampleGalleryItems = [
     caption: 'Educational content and community insights 📚',
     likes: 986,
     type: 'video',
-    isCarousel: false,
     isActive: true,
     sortOrder: 5,
     createdAt: new Date(),
@@ -64,7 +59,6 @@ const sampleGalleryItems = [
     caption: 'Connect with us on Telegram @GBShopXBot 📱',
     likes: 1823,
     type: 'image',
-    isCarousel: false,
     isActive: true,
     sortOrder: 6,
     createdAt: new Date(),
@@ -101,7 +95,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { imageUrl, caption, likes, type = 'image', isCarousel = false, sortOrder } = body;
+    const { imageUrl, caption, likes, type = 'image', sortOrder } = body;
 
     // Basic validation
     if (!imageUrl) {
@@ -127,7 +121,6 @@ export async function POST(request: Request) {
       caption: caption || '',
       likes: likes || 0,
       type,
-      isCarousel,
       isActive: true,
       sortOrder: finalSortOrder,
       createdAt: new Date(),
@@ -162,7 +155,7 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { id, imageUrl, caption, likes, type, isCarousel, isActive, sortOrder } = body;
+    const { id, imageUrl, caption, likes, type, isActive, sortOrder } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -182,7 +175,6 @@ export async function PUT(request: Request) {
     if (caption !== undefined) updateData.caption = caption;
     if (likes !== undefined) updateData.likes = likes;
     if (type !== undefined) updateData.type = type;
-    if (isCarousel !== undefined) updateData.isCarousel = isCarousel;
     if (isActive !== undefined) updateData.isActive = isActive;
     if (sortOrder !== undefined) updateData.sortOrder = sortOrder;
 

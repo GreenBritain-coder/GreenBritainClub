@@ -23,7 +23,6 @@ interface GalleryItem {
   caption: string;
   likes: number;
   type: 'image' | 'video';
-  isCarousel: boolean;
   isActive: boolean;
   sortOrder: number;
   createdAt: string;
@@ -47,7 +46,6 @@ interface GalleryFormData {
   caption: string;
   likes: number;
   type: 'image' | 'video';
-  isCarousel: boolean;
   isActive: boolean;
   sortOrder: number;
 }
@@ -80,7 +78,6 @@ export default function Management() {
     caption: '',
     likes: 0,
     type: 'image',
-    isCarousel: false,
     isActive: true,
     sortOrder: 1
   });
@@ -302,7 +299,6 @@ export default function Management() {
       caption: '',
       likes: 0,
       type: 'image',
-      isCarousel: false,
       isActive: true,
       sortOrder: galleryItems.length + 1
     });
@@ -319,7 +315,6 @@ export default function Management() {
       caption: item.caption,
       likes: item.likes,
       type: item.type,
-      isCarousel: item.isCarousel,
       isActive: item.isActive,
       sortOrder: item.sortOrder
     });
@@ -363,7 +358,6 @@ export default function Management() {
         caption: galleryFormData.caption.trim(),
         likes: galleryFormData.likes,
         type: galleryFormData.type,
-        isCarousel: galleryFormData.isCarousel,
         isActive: galleryFormData.isActive,
         sortOrder: galleryFormData.sortOrder
       };
@@ -776,17 +770,7 @@ export default function Management() {
                 </div>
               </div>
               
-              <div>
-                <label className="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
-                    checked={galleryFormData.isCarousel}
-                    onChange={(e) => setGalleryFormData({...galleryFormData, isCarousel: e.target.checked})}
-                    className="w-5 h-5 text-purple-600 bg-black/30 border-purple-400/30 rounded focus:ring-purple-500 focus:ring-2"
-                  />
-                  <span className="text-white font-medium">Carousel Post (multiple images)</span>
-                </label>
-              </div>
+
             </div>
           </div>
         </div>
@@ -1055,15 +1039,7 @@ export default function Management() {
                           </svg>
                         </div>
                       )}
-                      {item.isCarousel && (
-                        <div className="absolute top-2 left-2 bg-black/50 rounded-full p-1">
-                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                            <circle cx="9" cy="9" r="2"/>
-                            <path d="M21 15l-3.086-3.086a2 2 0 00-2.828 0L6 21"/>
-                          </svg>
-                        </div>
-                      )}
+
                       {/* Status indicator */}
                       <div className={`absolute bottom-2 left-2 px-2 py-1 rounded-full text-xs font-medium ${
                         item.isActive 
