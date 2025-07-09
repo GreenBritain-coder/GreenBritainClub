@@ -65,6 +65,7 @@ export default function Management() {
   const [showGalleryForm, setShowGalleryForm] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [editingGalleryItem, setEditingGalleryItem] = useState<GalleryItem | null>(null);
+  const [imageInputMode, setImageInputMode] = useState<'url' | 'upload'>('url'); // Add toggle state
   const [formData, setFormData] = useState<FormData>({
     title: '',
     slug: '',
@@ -295,6 +296,7 @@ export default function Management() {
   // Gallery management functions
   const handleNewGalleryItem = () => {
     setEditingGalleryItem(null);
+    setImageInputMode('url'); // Reset to URL mode for new items
     setGalleryFormData({
       imageUrl: '',
       caption: '',
@@ -309,6 +311,8 @@ export default function Management() {
 
   const handleEditGalleryItem = (item: GalleryItem) => {
     setEditingGalleryItem(item);
+    // Set input mode based on image URL - if it's a local upload, use upload mode
+    setImageInputMode(item.imageUrl.startsWith('/uploads/') ? 'upload' : 'url');
     setGalleryFormData({
       imageUrl: item.imageUrl,
       caption: item.caption,
@@ -403,6 +407,7 @@ export default function Management() {
   const handleCancelGalleryEdit = () => {
     setShowGalleryForm(false);
     setEditingGalleryItem(null);
+    setImageInputMode('url'); // Reset to default mode
   };
 
   const countPosts = () => {
@@ -626,18 +631,59 @@ export default function Management() {
             </div>
             
             <div className="space-y-6">
+              {/* Image Input Mode Toggle */}
               <div>
-                <label className="block text-sm font-medium text-white mb-2">
-                  Image URL
+                <label className="block text-sm font-medium text-white mb-3">
+                  Image Source
                 </label>
-                <input
-                  type="url"
-                  value={galleryFormData.imageUrl}
-                  onChange={(e) => setGalleryFormData({...galleryFormData, imageUrl: e.target.value})}
-                  className="w-full px-4 py-3 bg-black/30 border border-purple-400/30 rounded-lg text-white placeholder-green-300/50 focus:border-purple-400 focus:outline-none"
-                  placeholder="https://example.com/image.jpg"
-                />
+                <div className="flex space-x-1 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => setImageInputMode('url')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      imageInputMode === 'url'
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-black/30 text-green-300 hover:bg-black/50'
+                    }`}
+                  >
+                    🔗 URL
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setImageInputMode('upload')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      imageInputMode === 'upload'
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-black/30 text-green-300 hover:bg-black/50'
+                    }`}
+                  >
+                    📁 Upload
+                  </button>
+                </div>
               </div>
+
+              {/* Image Input Section */}
+              {imageInputMode === 'url' ? (
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">
+                    Image URL
+                  </label>
+                  <input
+                    type="url"
+                    value={galleryFormData.imageUrl}
+                    onChange={(e) => setGalleryFormData({...galleryFormData, imageUrl: e.target.value})}
+                    className="w-full px-4 py-3 bg-black/30 border border-purple-400/30 rounded-lg text-white placeholder-green-300/50 focus:border-purple-400 focus:outline-none"
+                    placeholder="https://example.com/image.jpg"
+                  />
+                </div>
+              ) : (
+                <div>
+                  <ImageUploader
+                    value={galleryFormData.imageUrl}
+                    onChange={(url: string) => setGalleryFormData({...galleryFormData, imageUrl: url})}
+                  />
+                </div>
+              )}
               
               {galleryFormData.imageUrl && (
                 <div>
