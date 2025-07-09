@@ -1,13 +1,52 @@
 
 import Link from "next/link";
+import Image from "next/image";
 
-export default function Home() {
+// Define blog post interface
+interface BlogPost {
+  _id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  status: 'published' | 'draft';
+  featuredImage?: string;
+  createdAt: string;
+}
+
+async function getBlogPosts(): Promise<BlogPost[]> {
+  try {
+    // Use server-side fetch for SSR
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/blog/posts`, {
+      cache: 'no-store'
+    });
+    
+    if (!res.ok) {
+      throw new Error('Failed to fetch posts');
+    }
+    
+    const posts = await res.json();
+    return Array.isArray(posts) ? posts.filter(post => post.status === 'published') : [];
+  } catch (error) {
+    console.error('Error fetching blog posts:', error);
+    return [];
+  }
+}
+
+export default async function Home() {
   const ukCities = [
     "London", "Manchester", "Birmingham", "Leeds", "Liverpool", 
     "Sheffield", "Bristol", "Glasgow", "Edinburgh", "Cardiff",
     "Newcastle", "Nottingham", "Leicester", "Coventry", "Bradford",
     "Stoke-on-Trent", "Wolverhampton", "Plymouth", "Southampton", "Reading"
   ];
+
+  // Get the latest blog posts
+  const blogPosts = await getBlogPosts();
+  const latestPosts = blogPosts.slice(0, 2); // Get first 2 posts for homepage
+  
+  // Default image if no featured image is available
+  const defaultImage = 'https://images.unsplash.com/photo-1456428199391-a3b1cb5e93ab?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-emerald-900">
@@ -295,44 +334,48 @@ export default function Home() {
         <h2 className="text-4xl font-bold text-white text-center mb-12">
           Latest from Our <span className="text-green-400">Blog</span>
         </h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <Link href="/blog/cannabis-legalization-uk" className="bg-black/20 backdrop-blur-sm rounded-lg overflow-hidden border border-green-400/20 hover:border-green-400/40 transition-colors">
-            <div className="h-48 bg-green-800 relative">
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/70 flex items-end p-4">
-                <h3 className="text-xl font-bold text-white">Cannabis Legalization in the UK</h3>
-              </div>
-            </div>
-            <div className="p-4">
-              <p className="text-green-300 text-sm mb-3">December 10, 2023</p>
-              <p className="text-white/80 mb-4">A comprehensive overview of cannabis legalization across the UK, examining regional differences and policy developments.</p>
-              <div className="text-green-400 font-medium flex items-center">
-                Read More
-                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
-          </Link>
-          
-          <Link href="/blog/benefits-of-cbd-for-anxiety" className="bg-black/20 backdrop-blur-sm rounded-lg overflow-hidden border border-green-400/20 hover:border-green-400/40 transition-colors">
-            <div className="h-48 bg-green-800 relative">
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/70 flex items-end p-4">
-                <h3 className="text-xl font-bold text-white">The Benefits of CBD for Anxiety</h3>
-              </div>
-            </div>
-            <div className="p-4">
-              <p className="text-green-300 text-sm mb-3">October 15, 2023</p>
-              <p className="text-white/80 mb-4">Discover how CBD can help manage anxiety and stress through its interaction with the endocannabinoid system.</p>
-              <div className="text-green-400 font-medium flex items-center">
-                Read More
-                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
-          </Link>
-          
-          <div className="bg-green-700/30 backdrop-blur-sm rounded-lg overflow-hidden border border-green-400/40 flex flex-col items-center justify-center p-8 text-center">
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+           {latestPosts.length > 0 ? (
+             latestPosts.map((post) => (
+               <Link key={post._id} href={`/blog/${post.slug}`} className="bg-black/20 backdrop-blur-sm rounded-lg overflow-hidden border border-green-400/20 hover:border-green-400/40 transition-colors">
+                 <div className="h-48 relative">
+                   <Image
+                     src={post.featuredImage || defaultImage}
+                     alt={post.title}
+                     fill
+                     style={{ objectFit: 'cover' }}
+                     className="opacity-70"
+                   />
+                   <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/70 flex items-end p-4">
+                     <h3 className="text-xl font-bold text-white">{post.title}</h3>
+                   </div>
+                 </div>
+                 <div className="p-4">
+                   <p className="text-green-300 text-sm mb-3">{new Date(post.createdAt).toLocaleDateString('en-GB', {
+                     day: 'numeric',
+                     month: 'short',
+                     year: 'numeric'
+                   })}</p>
+                   <p className="text-white/80 mb-4">{post.excerpt}</p>
+                   <div className="text-green-400 font-medium flex items-center">
+                     Read More
+                     <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                     </svg>
+                   </div>
+                 </div>
+               </Link>
+             ))
+           ) : (
+             // Fallback if no posts are available
+             <div className="bg-black/20 backdrop-blur-sm rounded-lg overflow-hidden border border-green-400/20 flex flex-col items-center justify-center p-8 text-center">
+               <h3 className="text-xl font-bold text-white mb-2">Coming Soon</h3>
+               <p className="text-green-200">Our blog content is being prepared</p>
+             </div>
+           )}
+           
+           {/* Always show the "Explore More" card */}
+           <div className="bg-green-700/30 backdrop-blur-sm rounded-lg overflow-hidden border border-green-400/40 flex flex-col items-center justify-center p-8 text-center">
             <h3 className="text-2xl font-bold text-white mb-4">Explore More Articles</h3>
             <p className="text-green-200 mb-6">Discover our full collection of articles, guides, and news about cannabis.</p>
             <Link 
