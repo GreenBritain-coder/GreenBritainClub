@@ -12,7 +12,7 @@ const sampleBlogPosts = [
     content: 'CBD has shown promising results in reducing anxiety and stress levels. Studies suggest that CBD interacts with the endocannabinoid system, which plays a role in regulating stress responses. Many users report feeling calmer and more relaxed after using CBD products. While more research is needed, the current evidence is encouraging for those seeking natural alternatives for anxiety management.',
     status: 'published',
     featuredImage: 'https://images.unsplash.com/photo-1503262028195-93c528f03218?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-    createdAt: '2023-10-15T12:00:00Z'
+    createdAt: '2025-01-05T12:00:00Z'
   },
   {
     _id: '2',
@@ -22,7 +22,7 @@ const sampleBlogPosts = [
     content: 'Cannabis strains are typically categorized as indica, sativa, or hybrid. Indica strains are known for their relaxing and sedating effects, often used for pain relief and sleep. Sativa strains tend to be more energizing and uplifting, potentially helping with depression and fatigue. Hybrids combine characteristics of both. The effects of each strain are influenced by their unique combination of cannabinoids and terpenes.',
     status: 'published',
     featuredImage: 'https://images.unsplash.com/photo-1536152470836-b943b246224c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-    createdAt: '2023-11-02T14:30:00Z'
+    createdAt: '2025-01-04T14:30:00Z'
   },
   {
     _id: '3',
@@ -155,7 +155,7 @@ For residents across the UK interested in cannabis policy reform, staying inform
       'Bristol', 'Liverpool', 'Leeds', 'Sheffield', 'Newcastle', 'Belfast', 
       'Nottingham', 'Oxford', 'Cambridge', 'Southampton', 'Brighton'
     ],
-    createdAt: '2023-12-10T09:15:00Z',
+    createdAt: '2025-01-03T09:15:00Z',
     updatedAt: '2024-07-15T14:30:00Z'
   },
   {
@@ -166,7 +166,7 @@ For residents across the UK interested in cannabis policy reform, staying inform
     content: 'For beginners growing cannabis at home (where legal), start with the basics: choose the right strain for your experience level, invest in quality seeds, and understand the growing environment requirements. Cannabis plants need proper lighting, ventilation, nutrients, and careful watering. Common mistakes include overwatering, poor lighting, and incorrect pH levels. Remember that patience is key—rushing the process rarely leads to good results.',
     status: 'draft',
     featuredImage: 'https://images.unsplash.com/photo-1485149476586-20f33627b8c8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-    createdAt: '2024-01-05T16:45:00Z'
+    createdAt: '2025-01-02T16:45:00Z'
   },
   {
     _id: '5',
@@ -176,7 +176,7 @@ For residents across the UK interested in cannabis policy reform, staying inform
     content: 'The endocannabinoid system (ECS) is a complex cell-signaling system identified in the early 1990s. It plays a role in regulating a range of functions and processes including sleep, mood, appetite, memory, reproduction, and pain. The ECS involves three core components: endocannabinoids, receptors, and enzymes. Phytocannabinoids from the cannabis plant, such as THC and CBD, can interact with this system, which explains many of their effects on the human body.',
     status: 'draft',
     featuredImage: 'https://images.unsplash.com/photo-1559827291-72ee739d0d9a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-    createdAt: '2024-02-20T11:20:00Z'
+    createdAt: '2025-01-01T11:20:00Z'
   },
   {
     _id: '6',
@@ -186,7 +186,7 @@ For residents across the UK interested in cannabis policy reform, staying inform
     content: 'Medical cannabis has transformed the lives of many patients suffering from chronic conditions. From epilepsy to multiple sclerosis, cancer to chronic pain, the therapeutic potential of cannabis continues to show promise. This article shares the stories of several patients who have experienced significant improvements in their quality of life after incorporating medical cannabis into their treatment regimens, often after conventional medicines failed to provide adequate relief.',
     status: 'published',
     featuredImage: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-    createdAt: '2024-03-05T10:30:00Z'
+    createdAt: '2024-12-31T10:30:00Z'
   },
   {
     _id: '7',
@@ -196,7 +196,7 @@ For residents across the UK interested in cannabis policy reform, staying inform
     content: 'Terpenes are aromatic compounds found in many plants, including cannabis. They\'re responsible for the distinctive smells and flavors of different cannabis strains, but their role goes far beyond aroma. Research suggests terpenes work synergistically with cannabinoids like THC and CBD to enhance therapeutic effects—a phenomenon known as the entourage effect. Common cannabis terpenes include myrcene (earthy), limonene (citrusy), pinene (pine), and linalool (lavender), each contributing unique properties to the overall experience.',
     status: 'published',
     featuredImage: 'https://images.unsplash.com/photo-1556928045-16f7f50be0f3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-    createdAt: '2024-04-12T15:45:00Z'
+    createdAt: '2024-12-30T15:45:00Z'
   }
 ];
 

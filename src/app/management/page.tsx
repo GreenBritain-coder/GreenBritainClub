@@ -24,6 +24,7 @@ interface FormData {
   content: string;
   status: 'published' | 'draft';
   featuredImage: string;
+  createdAt: string;
 }
 
 export default function Management() {
@@ -41,7 +42,8 @@ export default function Management() {
     excerpt: '',
     content: '',
     status: 'draft',
-    featuredImage: ''
+    featuredImage: '',
+    createdAt: ''
   });
 
   // Check if already logged in
@@ -110,7 +112,8 @@ export default function Management() {
       excerpt: '',
       content: '',
       status: 'draft',
-      featuredImage: ''
+      featuredImage: '',
+      createdAt: ''
     });
     setShowEditor(true);
   };
@@ -123,7 +126,8 @@ export default function Management() {
       excerpt: post.excerpt || '',
       content: post.content || '',
       status: post.status || 'draft',
-      featuredImage: post.featuredImage || ''
+      featuredImage: post.featuredImage || '',
+      createdAt: post.createdAt || ''
     });
     setShowEditor(true);
   };
@@ -182,6 +186,7 @@ export default function Management() {
         content: formData.content.trim(),
         status: formData.status,
         featuredImage: formData.featuredImage,
+        createdAt: formData.createdAt || new Date().toISOString(),
       };
 
       let response;
@@ -515,6 +520,36 @@ export default function Management() {
                 </select>
               </div>
 
+              {/* Publication Date */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ 
+                  display: 'block', 
+                  color: '#22c55e', 
+                  marginBottom: '8px', 
+                  fontWeight: 'bold' 
+                }}>
+                  Publication Date
+                </label>
+                <input
+                  type="datetime-local"
+                  value={formData.createdAt ? new Date(formData.createdAt).toISOString().slice(0, 16) : ''}
+                  onChange={(e) => {
+                    const dateValue = e.target.value ? new Date(e.target.value).toISOString() : '';
+                    setFormData({...formData, createdAt: dateValue});
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    background: 'rgba(0,0,0,0.3)',
+                    border: '1px solid rgba(34, 197, 94, 0.3)',
+                    borderRadius: '6px',
+                    color: 'white',
+                    fontSize: '16px'
+                  }}
+                />
+              </div>
+
+              {/* Image Uploader */}
               <div>
                 <ImageUploader 
                   value={formData.featuredImage} 
