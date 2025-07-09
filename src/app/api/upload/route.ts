@@ -41,13 +41,13 @@ export async function POST(request: NextRequest) {
     // Write file to uploads directory
     await writeFile(filePath, buffer);
 
-    // Return the public URL
-    const fileUrl = `/uploads/${fileName}`;
+    // Return the API URL that serves the file
+    const fileUrl = `/api/uploads/${fileName}`;
 
     // Log successful upload for debugging
     console.log(`✅ File uploaded successfully: ${fileName}`);
     console.log(`📂 Saved to: ${filePath}`);
-    console.log(`🌐 Public URL: ${fileUrl}`);
+    console.log(`🌐 API URL: ${fileUrl}`);
 
     return NextResponse.json({ 
       message: 'File uploaded successfully',

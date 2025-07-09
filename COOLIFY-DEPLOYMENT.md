@@ -97,7 +97,8 @@ You need a MongoDB database. Options:
 - Admin authentication required
 
 ### **Uploaded Images:**
-- Accessible at: `https://your-domain.com/uploads/filename.jpg`
+- Accessible at: `https://your-domain.com/api/uploads/filename.jpg`
+- Served through custom API route (bypasses static file issues)
 - Stored locally on server
 - **Important:** Requires persistent storage setup (see below)
 
@@ -184,33 +185,36 @@ Edit `src/app/page.tsx` and `src/app/[city]/page.tsx`
 - Check server disk space
 - Verify write permissions to `/public/uploads/`
 
-#### **Images Show 404 Error (Most Common Issue):**
-**This is usually a persistent storage problem in Coolify!**
+#### **Images Show 404 Error:**
+**✅ FIXED: The latest version now uses API routes to serve images, bypassing static file issues!**
 
-**Quick Fix:**
+**New System (Automatic):**
+- Images are now served via: `/api/uploads/filename.jpg`
+- This bypasses Next.js static file serving limitations
+- Works with any Coolify storage configuration
+
+**If still getting 404 errors:**
 1. **Check Coolify Storage:**
    - Go to Coolify Dashboard → Your App → "Storages" tab
-   - Ensure you have storage mapped to `/app/public/uploads`
+   - Add storage if missing:
+     ```
+     Source: /data/uploads (on host)
+     Destination: /app/public/uploads (in container)
+     ```
 
-2. **Add Storage if Missing:**
-   ```
-   Source: /data/uploads (on host)
-   Destination: /app/public/uploads (in container)
-   ```
+2. **Test the API Route:**
+   - Try: `https://your-domain.com/api/uploads/your-filename.jpg`
+   - If this works = storage is configured correctly
+   - If 404 = storage mapping issue
 
 3. **Verify Environment:**
    - Check if `NODE_ENV=production` is set
    - Verify `NEXT_PUBLIC_SITE_URL` matches your domain
 
-4. **Test Static Files:**
-   - Try accessing: `https://your-domain.com/next.svg`
-   - If this works but uploads don't = storage issue
-   - If this fails = deployment issue
-
 **Alternative Solutions:**
 - Use external storage (Cloudinary, S3, etc.)
 - Upload images as URLs instead of files
-- Check Coolify logs for errors
+- Check Coolify application logs for errors
 
 ### **Database Issues:**
 - Verify MongoDB connection string

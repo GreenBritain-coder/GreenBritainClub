@@ -311,8 +311,9 @@ export default function Management() {
 
   const handleEditGalleryItem = (item: GalleryItem) => {
     setEditingGalleryItem(item);
-    // Set input mode based on image URL - if it's a local upload, use upload mode
-    setImageInputMode(item.imageUrl.startsWith('/uploads/') ? 'upload' : 'url');
+    // Set input mode based on image URL - if it's a local upload (static or API), use upload mode
+    const isLocalUpload = item.imageUrl.startsWith('/uploads/') || item.imageUrl.startsWith('/api/uploads/');
+    setImageInputMode(isLocalUpload ? 'upload' : 'url');
     setGalleryFormData({
       imageUrl: item.imageUrl,
       caption: item.caption,
