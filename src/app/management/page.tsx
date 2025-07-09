@@ -128,64 +128,98 @@ export default function Management() {
     setShowEditor(true);
   };
 
-  const handleDeletePost = (post: BlogPost) => {
+  const handleDeletePost = async (post: BlogPost) => {
     if (confirm(`Are you sure you want to delete "${post.title || 'Untitled'}"?`)) {
-      // Remove from local state (since we don't have a real delete API)
-      const newPosts: BlogPost[] = [];
-      for (let i = 0; i < posts.length; i++) {
-        if (posts[i] !== post) {
-          newPosts.push(posts[i]);
+      try {
+        setLoading(true);
+        const response = await fetch('/api/blog/posts', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ id: post._id }),
+        });
+
+        if (response.ok) {
+          // Reload posts to get updated list from database
+          await loadPosts();
+        } else {
+          const errorData = await response.json();
+          alert(`Failed to delete post: ${errorData.error || 'Unknown error'}`);
         }
+      } catch (error) {
+        console.error('Error deleting post:', error);
+        alert('Failed to delete post. Please try again.');
+      } finally {
+        setLoading(false);
       }
-      setPosts(newPosts);
     }
   };
 
-  const handleSavePost = () => {
+  const handleSavePost = async () => {
     if (!formData.title.trim()) {
       alert('Please enter a title');
       return;
     }
 
-    // Generate slug from title if empty
-    let slug = formData.slug.trim();
-    if (!slug) {
-      slug = formData.title.toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .trim();
-    }
+    try {
+      setLoading(true);
 
-    const postData: BlogPost = {
-      _id: editingPost ? editingPost._id : Date.now().toString(),
-      title: formData.title.trim(),
-      slug: slug,
-      excerpt: formData.excerpt.trim(),
-      content: formData.content.trim(),
-      status: formData.status,
-      featuredImage: formData.featuredImage,
-      createdAt: editingPost ? editingPost.createdAt : new Date().toISOString()
-    };
-
-    if (editingPost) {
-      // Update existing post
-      const newPosts: BlogPost[] = [];
-      for (let i = 0; i < posts.length; i++) {
-        if (posts[i]._id === editingPost._id) {
-          newPosts.push(postData);
-        } else {
-          newPosts.push(posts[i]);
-        }
+      // Generate slug from title if empty
+      let slug = formData.slug.trim();
+      if (!slug) {
+        slug = formData.title.toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .trim();
       }
-      setPosts(newPosts);
-    } else {
-      // Add new post
-      setPosts([postData, ...posts]);
-    }
 
-    setShowEditor(false);
-    setEditingPost(null);
+      const postData = {
+        title: formData.title.trim(),
+        slug: slug,
+        excerpt: formData.excerpt.trim(),
+        content: formData.content.trim(),
+        status: formData.status,
+        featuredImage: formData.featuredImage,
+      };
+
+      let response;
+      if (editingPost) {
+        // Update existing post
+        response = await fetch('/api/blog/posts', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ ...postData, _id: editingPost._id }),
+        });
+      } else {
+        // Create new post
+        response = await fetch('/api/blog/posts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(postData),
+        });
+      }
+
+      if (response.ok) {
+        // Reload posts to get updated list from database
+        await loadPosts();
+        setShowEditor(false);
+        setEditingPost(null);
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to save post: ${errorData.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error saving post:', error);
+      alert('Failed to save post. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancelEdit = () => {

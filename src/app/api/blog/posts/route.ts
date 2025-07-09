@@ -1,7 +1,9 @@
 ﻿import { NextResponse } from 'next/server';
+import { connectToDatabase } from '@/app/lib/mongodb';
+import { ObjectId } from 'mongodb';
 
-// Sample blog data for development
-const blogPosts = [
+// Sample blog data for initial seeding only
+const sampleBlogPosts = [
   {
     _id: '1',
     title: 'The Benefits of CBD for Anxiety and Stress Relief',
@@ -199,24 +201,50 @@ For residents across the UK interested in cannabis policy reform, staying inform
 ];
 
 export async function GET() {
-  // In a real app, this would fetch from a database
-  return NextResponse.json(blogPosts);
+  try {
+    const { db } = await connectToDatabase();
+    
+    // Check if blog collection is empty and seed with sample data
+    const count = await db.collection('blogPosts').countDocuments();
+    if (count === 0) {
+      console.log('Seeding blog posts with sample data...');
+      await db.collection('blogPosts').insertMany(sampleBlogPosts);
+    }
+    
+    // Fetch all blog posts, sorted by creation date (newest first)
+    const posts = await db.collection('blogPosts').find({}).sort({ createdAt: -1 }).toArray();
+    
+    return NextResponse.json(posts);
+  } catch (error) {
+    console.error('Error fetching blog posts:', error);
+    return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {
   try {
     const post = await request.json();
+    const { db } = await connectToDatabase();
     
-    // In a real app, this would validate and save to a database
-    // For now, we'll just return the post with a new ID
+    // Create new post with timestamp
     const newPost = {
       ...post,
-      _id: Date.now().toString(),
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
     
-    return NextResponse.json(newPost, { status: 201 });
+    // Insert into MongoDB
+    const result = await db.collection('blogPosts').insertOne(newPost);
+    
+    // Return the created post with the MongoDB _id
+    const createdPost = {
+      ...newPost,
+      _id: result.insertedId.toString()
+    };
+    
+    return NextResponse.json(createdPost, { status: 201 });
   } catch (error) {
+    console.error('Error creating post:', error);
     return NextResponse.json(
       { error: 'Failed to create post' },
       { status: 500 }
@@ -227,11 +255,41 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const post = await request.json();
+    const { db } = await connectToDatabase();
     
-    // In a real app, this would update in a database
-    // For now, we'll just return the updated post
-    return NextResponse.json(post);
+    if (!post._id) {
+      return NextResponse.json(
+        { error: 'Post ID is required for update' },
+        { status: 400 }
+      );
+    }
+    
+    // Prepare update data
+    const updateData = {
+      ...post,
+      updatedAt: new Date().toISOString()
+    };
+    
+    // Remove _id from update data as MongoDB doesn't allow updating _id
+    delete updateData._id;
+    
+    // Update the post in MongoDB
+    const result = await db.collection('blogPosts').updateOne(
+      { _id: new ObjectId(post._id) },
+      { $set: updateData }
+    );
+    
+    if (result.matchedCount === 0) {
+      return NextResponse.json(
+        { error: 'Post not found' },
+        { status: 404 }
+      );
+    }
+    
+    // Return the updated post
+    return NextResponse.json({ ...post, updatedAt: updateData.updatedAt });
   } catch (error) {
+    console.error('Error updating post:', error);
     return NextResponse.json(
       { error: 'Failed to update post' },
       { status: 500 }
@@ -242,11 +300,33 @@ export async function PUT(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const { id } = await request.json();
+    const { db } = await connectToDatabase();
     
-    // In a real app, this would delete from a database
-    // For now, we'll just return success
-    return NextResponse.json({ success: true });
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Post ID is required' },
+        { status: 400 }
+      );
+    }
+    
+    // Delete the post from MongoDB
+    const result = await db.collection('blogPosts').deleteOne(
+      { _id: new ObjectId(id) }
+    );
+    
+    if (result.deletedCount === 0) {
+      return NextResponse.json(
+        { error: 'Post not found' },
+        { status: 404 }
+      );
+    }
+    
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Post deleted successfully' 
+    });
   } catch (error) {
+    console.error('Error deleting post:', error);
     return NextResponse.json(
       { error: 'Failed to delete post' },
       { status: 500 }
