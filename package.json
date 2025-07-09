@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/nodemailer": "^6.4.17",
     "bcrypt": "^6.0.0",
+    "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.17.0",
     "next": "15.3.5",
     "nodemailer": "^7.0.5",

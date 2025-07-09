@@ -50,20 +50,39 @@ interface GalleryFormData {
   sortOrder: number;
 }
 
+// Define user interface
+interface User {
+  email: string;
+  role: 'admin' | 'user';
+  name: string;
+  firstName?: string;
+  lastName?: string;
+  tier?: string;
+  subscription?: {
+    tier: string;
+    price: number;
+    status: string;
+    startDate: string;
+  };
+}
+
 export default function Management() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUsername] = useState('');
+  const [user, setUser] = useState<User | null>(null);
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState<'blog' | 'gallery'>('blog');
+  const [activeTab, setActiveTab] = useState<'blog' | 'gallery' | 'profile' | 'membership'>('membership');
   const [showEditor, setShowEditor] = useState(false);
   const [showGalleryForm, setShowGalleryForm] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [editingGalleryItem, setEditingGalleryItem] = useState<GalleryItem | null>(null);
-  const [imageInputMode, setImageInputMode] = useState<'url' | 'upload'>('url'); // Add toggle state
+  const [imageInputMode, setImageInputMode] = useState<'url' | 'upload'>('url');
+  const [profileData, setProfileData] = useState({ firstName: '', lastName: '' });
+  
   const [formData, setFormData] = useState<FormData>({
     title: '',
     slug: '',
@@ -84,29 +103,86 @@ export default function Management() {
 
   // Check if already logged in
   useEffect(() => {
-    const token = localStorage.getItem('admin-token');
-    if (token === 'logged-in') {
+    const token = localStorage.getItem('auth-token');
+    const userData = localStorage.getItem('user-data');
+    
+    if (token && userData) {
+      const user = JSON.parse(userData);
+      setUser(user);
       setIsLoggedIn(true);
-      loadPosts();
-      loadGalleryItems();
+      
+      if (user.role === 'admin') {
+        setActiveTab('blog');
+        loadPosts();
+        loadGalleryItems();
+      } else {
+        setActiveTab('membership');
+        loadUserProfile(token);
+      }
     }
   }, []);
+
+  const loadUserProfile = async (token: string) => {
+    try {
+      const response = await fetch('/api/user/profile', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const profile = await response.json();
+        setProfileData({
+          firstName: profile.firstName || '',
+          lastName: profile.lastName || ''
+        });
+      }
+    } catch (err) {
+      console.error('Failed to load user profile:', err);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    // Simple hardcoded check
-    if (username === 'admin' && password === 'greenbritain2024') {
-      localStorage.setItem('admin-token', 'logged-in');
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+
+      // Store authentication data
+      localStorage.setItem('auth-token', data.token);
+      localStorage.setItem('user-data', JSON.stringify(data.user));
+      
+      setUser(data.user);
       setIsLoggedIn(true);
-      loadPosts();
-      loadGalleryItems();
-    } else {
-      setError('Invalid credentials');
+      
+      if (data.user.role === 'admin') {
+        setActiveTab('blog');
+        loadPosts();
+        loadGalleryItems();
+      } else {
+        setActiveTab('membership');
+        loadUserProfile(data.token);
+      }
+      
+    } catch (err: any) {
+      setError(err.message || 'Login failed');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const loadPosts = async () => {
@@ -149,17 +225,101 @@ export default function Management() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('admin-token');
+    localStorage.removeItem('auth-token');
+    localStorage.removeItem('user-data');
     setIsLoggedIn(false);
+    setUser(null);
     setPosts([]);
     setGalleryItems([]);
-    setUsername('');
+    setProfileData({ firstName: '', lastName: '' });
+    setEmail('');
     setPassword('');
     setShowEditor(false);
     setShowGalleryForm(false);
     setEditingPost(null);
     setEditingGalleryItem(null);
-    setActiveTab('blog');
+    setActiveTab('membership');
+  };
+
+  const handleUpdateProfile = async () => {
+    if (!profileData.firstName || !profileData.lastName) {
+      setError('First name and last name are required');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const token = localStorage.getItem('auth-token');
+      const response = await fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(profileData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update profile');
+      }
+
+      // Update user data in localStorage
+      if (user) {
+        const updatedUser = { ...user, name: `${profileData.firstName} ${profileData.lastName}` };
+        setUser(updatedUser);
+        localStorage.setItem('user-data', JSON.stringify(updatedUser));
+      }
+
+      alert('Profile updated successfully!');
+    } catch (err: any) {
+      setError(err.message || 'Failed to update profile');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getTierInfo = (tier: string) => {
+    const tiers = {
+      sapphire: {
+        name: '🔷 Sapphire',
+        price: 'Free',
+        color: 'blue',
+        benefits: [
+          'Access to basic blog content',
+          'Monthly newsletter',
+          'Community forum access',
+          'Limited discounts on products'
+        ]
+      },
+      ruby: {
+        name: '♦️ Ruby',
+        price: '£10/month',
+        color: 'red',
+        benefits: [
+          'All Sapphire benefits',
+          'Exclusive content access',
+          'Priority customer support',
+          '10% discount on all products',
+          'Monthly cannabis samples'
+        ]
+      },
+      diamond: {
+        name: '💎 Diamond',
+        price: '£15.99/month',
+        color: 'purple',
+        benefits: [
+          'All Ruby benefits',
+          'VIP event invitations',
+          'Early access to new products',
+          '20% discount on all products',
+          'Premium cannabis samples monthly',
+          'Personal cannabis consultant'
+        ]
+      }
+    };
+    return tiers[tier as keyof typeof tiers] || tiers.sapphire;
   };
 
   const handleNewPost = () => {
@@ -430,22 +590,22 @@ export default function Management() {
             <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
               🔐
             </div>
-            <h1 className="text-white mb-2 text-xl md:text-2xl lg:text-3xl font-bold">Content Management</h1>
-            <p className="text-green-300">GreenBritain.Club Blog Administration</p>
+            <h1 className="text-white mb-2 text-xl md:text-2xl lg:text-3xl font-bold">Member Login</h1>
+            <p className="text-green-300">Access your membership dashboard or admin panel</p>
           </div>
           
           <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-green-400/30">
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-white mb-2">
-                  Username
+                  Email
                 </label>
                 <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-3 bg-black/30 border border-green-400/30 rounded-lg text-white placeholder-green-300/50 focus:border-green-400 focus:outline-none"
-                  placeholder="Enter username"
+                  placeholder="Enter your email address"
                   required
                 />
               </div>
@@ -784,25 +944,32 @@ export default function Management() {
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-white mb-2 text-xl md:text-2xl lg:text-3xl font-bold">Content Management</h1>
-            <p className="text-green-300">Manage your cannabis blog posts and gallery content</p>
+            <h1 className="text-white mb-2 text-xl md:text-2xl lg:text-3xl font-bold">
+              {user?.role === 'admin' ? 'Admin Dashboard' : `Welcome back, ${user?.name?.split(' ')[0] || 'Member'}!`}
+            </h1>
+            <p className="text-green-300">
+              {user?.role === 'admin' 
+                ? 'Manage your cannabis blog posts and gallery content' 
+                : `Your ${getTierInfo(user?.tier || 'sapphire').name} membership dashboard`
+              }
+            </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
-            {activeTab === 'blog' ? (
+            {user?.role === 'admin' && activeTab === 'blog' ? (
               <button
                 onClick={handleNewPost}
                 className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
               >
                 + New Post
               </button>
-            ) : (
+            ) : user?.role === 'admin' && activeTab === 'gallery' ? (
               <button
                 onClick={handleNewGalleryItem}
                 className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
               >
                 + New Gallery Item
               </button>
-            )}
+            ) : null}
             <button
               onClick={handleLogout}
               className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
@@ -814,31 +981,58 @@ export default function Management() {
 
         {/* Tabs */}
         <div className="flex space-x-1 mb-8">
-          <button
-            onClick={() => setActiveTab('blog')}
-            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-              activeTab === 'blog'
-                ? 'bg-green-600 text-white'
-                : 'bg-black/30 text-green-300 hover:bg-black/50'
-            }`}
-          >
-            📝 Blog Posts
-          </button>
-          <button
-            onClick={() => setActiveTab('gallery')}
-            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-              activeTab === 'gallery'
-                ? 'bg-purple-600 text-white'
-                : 'bg-black/30 text-green-300 hover:bg-black/50'
-            }`}
-          >
-            📸 Gallery
-          </button>
+          {user?.role === 'admin' ? (
+            <>
+              <button
+                onClick={() => setActiveTab('blog')}
+                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                  activeTab === 'blog'
+                    ? 'bg-green-600 text-white'
+                    : 'bg-black/30 text-green-300 hover:bg-black/50'
+                }`}
+              >
+                📝 Blog Posts
+              </button>
+              <button
+                onClick={() => setActiveTab('gallery')}
+                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                  activeTab === 'gallery'
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-black/30 text-green-300 hover:bg-black/50'
+                }`}
+              >
+                📸 Gallery
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => setActiveTab('membership')}
+                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                  activeTab === 'membership'
+                    ? 'bg-green-600 text-white'
+                    : 'bg-black/30 text-green-300 hover:bg-black/50'
+                }`}
+              >
+                🔷 My Membership
+              </button>
+              <button
+                onClick={() => setActiveTab('profile')}
+                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                  activeTab === 'profile'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-black/30 text-green-300 hover:bg-black/50'
+                }`}
+              >
+                👤 Profile
+              </button>
+            </>
+          )}
         </div>
         
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
-          {activeTab === 'blog' ? (
+          {user?.role === 'admin' && activeTab === 'blog' ? (
             <>
               <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 md:p-6 border border-green-400/30">
                 <div className="flex items-center gap-3">
@@ -876,7 +1070,7 @@ export default function Management() {
                 </div>
               </div>
             </>
-          ) : (
+          ) : user?.role === 'admin' && activeTab === 'gallery' ? (
             <>
               <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 md:p-6 border border-purple-400/30">
                 <div className="flex items-center gap-3">
@@ -914,16 +1108,57 @@ export default function Management() {
                 </div>
               </div>
             </>
-          )}
+          ) : user?.role === 'user' && activeTab === 'membership' ? (
+            <>
+              <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 md:p-6 border border-blue-400/30">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-lg">
+                    {getTierInfo(user.tier || 'sapphire').name.split(' ')[0]}
+                  </div>
+                  <div>
+                    <p className="text-green-300 text-sm mb-1">Membership Tier</p>
+                    <p className="text-white text-xl md:text-2xl font-bold">{getTierInfo(user.tier || 'sapphire').name.split(' ')[1]}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 md:p-6 border border-green-400/30">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center text-lg">
+                    💰
+                  </div>
+                  <div>
+                    <p className="text-green-300 text-sm mb-1">Monthly Cost</p>
+                    <p className="text-white text-xl md:text-2xl font-bold">{getTierInfo(user.tier || 'sapphire').price}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 md:p-6 border border-purple-400/30">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center text-lg">
+                    ✅
+                  </div>
+                  <div>
+                    <p className="text-green-300 text-sm mb-1">Status</p>
+                    <p className="text-white text-xl md:text-2xl font-bold">Active</p>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : null}
         </div>
         
         {/* Content List */}
         <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 md:p-8 border border-green-400/30">
           <h2 className="text-white mb-5 text-lg md:text-xl lg:text-2xl font-bold">
-            {activeTab === 'blog' ? 'Your Blog Posts' : 'Gallery Items'}
+            {user?.role === 'admin' ? 
+              (activeTab === 'blog' ? 'Your Blog Posts' : 'Gallery Items') :
+              (activeTab === 'membership' ? 'Your Membership Details' : 'Profile Settings')
+            }
           </h2>
           
-          {activeTab === 'blog' ? (
+          {user?.role === 'admin' && activeTab === 'blog' ? (
             // Blog Posts Content
             posts.length === 0 ? (
               <div className="text-center py-12">
@@ -1005,7 +1240,7 @@ export default function Management() {
                 ))}
               </div>
             )
-          ) : (
+          ) : user?.role === 'admin' && activeTab === 'gallery' ? (
             // Gallery Items Content
             galleryItems.length === 0 ? (
               <div className="text-center py-12">
@@ -1082,7 +1317,173 @@ export default function Management() {
                 ))}
               </div>
             )
-          )}
+          ) : user?.role === 'user' && activeTab === 'membership' ? (
+            // User Membership Dashboard
+            <div className="space-y-6">
+              {/* Current Tier Info */}
+              <div className="bg-black/30 rounded-lg p-6 border border-blue-400/30">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-2xl">
+                    {getTierInfo(user.tier || 'sapphire').name.split(' ')[0]}
+                  </div>
+                  <div>
+                    <h3 className="text-white text-xl font-bold">{getTierInfo(user.tier || 'sapphire').name}</h3>
+                    <p className="text-green-300">{getTierInfo(user.tier || 'sapphire').price}</p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="text-white font-semibold mb-3">Your Benefits</h4>
+                    <ul className="space-y-2">
+                      {getTierInfo(user.tier || 'sapphire').benefits.map((benefit, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <svg className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-green-200 text-sm">{benefit}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  <div>
+                    <h4 className="text-white font-semibold mb-3">Membership Info</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-green-300 text-sm">Status:</span>
+                        <span className="text-green-400 text-sm font-medium">Active</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-green-300 text-sm">Member Since:</span>
+                        <span className="text-white text-sm">{new Date().toLocaleDateString('en-GB')}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-green-300 text-sm">Next Billing:</span>
+                        <span className="text-white text-sm">{user.tier === 'sapphire' ? 'N/A (Free)' : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB')}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Links */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a 
+                  href="/blog" 
+                  className="bg-black/30 rounded-lg p-4 border border-green-400/30 hover:border-green-400/50 transition-colors group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center text-lg group-hover:bg-green-500 transition-colors">
+                      📚
+                    </div>
+                    <div>
+                      <h4 className="text-white font-semibold">Browse Blog</h4>
+                      <p className="text-green-300 text-sm">Read exclusive content</p>
+                    </div>
+                  </div>
+                </a>
+                
+                <a 
+                  href="https://t.me/GBShopXBot" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-black/30 rounded-lg p-4 border border-blue-400/30 hover:border-blue-400/50 transition-colors group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-lg group-hover:bg-blue-500 transition-colors">
+                      💬
+                    </div>
+                    <div>
+                      <h4 className="text-white font-semibold">Join Telegram</h4>
+                      <p className="text-green-300 text-sm">Community support</p>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          ) : user?.role === 'user' && activeTab === 'profile' ? (
+            // User Profile Management
+            <div className="space-y-6">
+              <div className="bg-black/30 rounded-lg p-6 border border-green-400/30">
+                <h3 className="text-white text-lg font-bold mb-4">Personal Information</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div>
+                    <label className="block text-sm font-medium text-white mb-2">
+                      First Name
+                    </label>
+                    <input
+                      type="text"
+                      value={profileData.firstName}
+                      onChange={(e) => setProfileData({...profileData, firstName: e.target.value})}
+                      className="w-full px-4 py-3 bg-black/30 border border-green-400/30 rounded-lg text-white placeholder-green-300/50 focus:border-green-400 focus:outline-none"
+                      placeholder="Enter first name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-white mb-2">
+                      Last Name
+                    </label>
+                    <input
+                      type="text"
+                      value={profileData.lastName}
+                      onChange={(e) => setProfileData({...profileData, lastName: e.target.value})}
+                      className="w-full px-4 py-3 bg-black/30 border border-green-400/30 rounded-lg text-white placeholder-green-300/50 focus:border-green-400 focus:outline-none"
+                      placeholder="Enter last name"
+                    />
+                  </div>
+                </div>
+                
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-white mb-2">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    value={user.email}
+                    disabled
+                    className="w-full px-4 py-3 bg-black/50 border border-gray-400/30 rounded-lg text-gray-300 cursor-not-allowed"
+                    placeholder="Email cannot be changed"
+                  />
+                  <p className="text-green-400/70 text-xs mt-1">Email address cannot be modified</p>
+                </div>
+
+                {error && (
+                  <div className="bg-red-500/20 border border-red-400/30 rounded-lg p-3 mb-4">
+                    <p className="text-red-300 text-sm">{error}</p>
+                  </div>
+                )}
+
+                <button
+                  onClick={handleUpdateProfile}
+                  disabled={loading}
+                  className="px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-green-800 text-white rounded-lg font-semibold transition-colors"
+                >
+                  {loading ? 'Updating...' : 'Update Profile'}
+                </button>
+              </div>
+              
+              {/* Account Info */}
+              <div className="bg-black/30 rounded-lg p-6 border border-blue-400/30">
+                <h3 className="text-white text-lg font-bold mb-4">Account Information</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-green-300">Account Type:</span>
+                    <span className="text-white">Member Account</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-green-300">Member ID:</span>
+                    <span className="text-white font-mono">{user.email.split('@')[0].toUpperCase()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-green-300">Current Tier:</span>
+                    <span className="text-white">{getTierInfo(user.tier || 'sapphire').name}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
