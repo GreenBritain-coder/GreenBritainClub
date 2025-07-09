@@ -25,7 +25,10 @@ export async function POST(request: Request) {
     }
 
     // Connect to database
+    console.log('Attempting to connect to MongoDB...');
+    console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
     const { db } = await connectToDatabase();
+    console.log('Successfully connected to MongoDB');
     
     // Check if user already exists
     const existingUser = await db.collection('users').findOne({ email });
@@ -85,8 +88,22 @@ export async function POST(request: Request) {
     
   } catch (error) {
     console.error('Registration error:', error);
+    
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
+    const errorName = error instanceof Error ? error.name : 'Error';
+    
+    console.error('Error details:', {
+      message: errorMessage,
+      stack: errorStack,
+      name: errorName
+    });
+    
     return NextResponse.json(
-      { message: 'Internal server error' },
+      { 
+        message: 'Internal server error',
+        error: process.env.NODE_ENV === 'development' ? errorMessage : 'Contact support'
+      },
       { status: 500 }
     );
   }
