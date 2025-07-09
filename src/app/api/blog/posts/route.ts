@@ -274,10 +274,23 @@ export async function PUT(request: Request) {
     delete updateData._id;
     
     // Update the post in MongoDB
-    const result = await db.collection('blogPosts').updateOne(
-      { _id: new ObjectId(post._id) },
-      { $set: updateData }
-    );
+    let result;
+    try {
+      if (ObjectId.isValid(post._id)) {
+        result = await db.collection('blogPosts').updateOne(
+          { _id: new ObjectId(post._id) },
+          { $set: updateData }
+        );
+      } else {
+        throw new Error('Not a valid ObjectId');
+      }
+    } catch (objectIdError) {
+      // If ObjectId fails, try with string ID (for legacy posts)
+      result = await db.collection('blogPosts').updateOne(
+        { _id: post._id },
+        { $set: updateData }
+      );
+    }
     
     if (result.matchedCount === 0) {
       return NextResponse.json(
@@ -302,6 +315,8 @@ export async function DELETE(request: Request) {
     const { id } = await request.json();
     const { db } = await connectToDatabase();
     
+    console.log('DELETE request received for post ID:', id);
+    
     if (!id) {
       return NextResponse.json(
         { error: 'Post ID is required' },
@@ -309,10 +324,27 @@ export async function DELETE(request: Request) {
       );
     }
     
-    // Delete the post from MongoDB
-    const result = await db.collection('blogPosts').deleteOne(
-      { _id: new ObjectId(id) }
-    );
+    let result;
+    
+    // Try to delete with ObjectId first (for MongoDB-generated IDs)
+    try {
+      if (ObjectId.isValid(id)) {
+        console.log('Attempting delete with ObjectId format');
+        result = await db.collection('blogPosts').deleteOne(
+          { _id: new ObjectId(id) }
+        );
+      } else {
+        throw new Error('Not a valid ObjectId');
+      }
+    } catch (objectIdError) {
+      // If ObjectId fails, try with string ID (for legacy posts)
+      console.log('ObjectId failed, trying string ID format');
+      result = await db.collection('blogPosts').deleteOne(
+        { _id: id }
+      );
+    }
+    
+    console.log('Delete result:', result);
     
     if (result.deletedCount === 0) {
       return NextResponse.json(
@@ -327,8 +359,20 @@ export async function DELETE(request: Request) {
     });
   } catch (error) {
     console.error('Error deleting post:', error);
+    
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
+    
+    console.error('Delete error details:', {
+      message: errorMessage,
+      stack: errorStack
+    });
+    
     return NextResponse.json(
-      { error: 'Failed to delete post' },
+      { 
+        error: 'Failed to delete post',
+        details: process.env.NODE_ENV === 'development' ? errorMessage : 'Contact support'
+      },
       { status: 500 }
     );
   }
