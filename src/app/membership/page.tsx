@@ -321,6 +321,20 @@ function RegistrationForm({ selectedTier }: { selectedTier: string }) {
     setShowCryptoPayment(false);
   };
 
+  // Show crypto payment component when crypto payment is selected
+  if (showCryptoPayment) {
+    return (
+      <CryptoPayment
+        tier={selectedTier}
+        email={formData.email}
+        firstName={formData.firstName}
+        lastName={formData.lastName}
+        onPaymentComplete={handleCryptoPaymentComplete}
+        onCancel={handleCryptoPaymentCancel}
+      />
+    );
+  }
+
   if (success) {
     return (
       <div className="text-center py-8">
@@ -546,18 +560,4 @@ function RegistrationForm({ selectedTier }: { selectedTier: string }) {
       </div>
     </form>
   );
-
-  // Show crypto payment component when crypto payment is selected
-  if (showCryptoPayment) {
-    return (
-      <CryptoPayment
-        tier={selectedTier}
-        email={formData.email}
-        firstName={formData.firstName}
-        lastName={formData.lastName}
-        onPaymentComplete={handleCryptoPaymentComplete}
-        onCancel={handleCryptoPaymentCancel}
-      />
-    );
-  }
 } 
