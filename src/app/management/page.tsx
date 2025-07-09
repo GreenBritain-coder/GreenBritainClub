@@ -75,7 +75,7 @@ export default function Management() {
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState<'blog' | 'gallery' | 'profile' | 'membership'>('membership');
+  const [activeTab, setActiveTab] = useState<'blog' | 'gallery' | 'payments' | 'profile' | 'membership'>('membership');
   const [showEditor, setShowEditor] = useState(false);
   const [showGalleryForm, setShowGalleryForm] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
@@ -101,6 +101,11 @@ export default function Management() {
     sortOrder: 1
   });
 
+  // Payment management state
+  const [payments, setPayments] = useState<any[]>([]);
+  const [paymentStats, setPaymentStats] = useState<any>({});
+  const [paymentFilter, setPaymentFilter] = useState<string>('all');
+
   // Check if already logged in
   useEffect(() => {
     const token = localStorage.getItem('auth-token');
@@ -121,6 +126,13 @@ export default function Management() {
       }
     }
   }, []);
+
+  // Load payments when filter changes
+  useEffect(() => {
+    if (isLoggedIn && user?.role === 'admin' && activeTab === 'payments') {
+      loadPayments();
+    }
+  }, [paymentFilter, isLoggedIn, user?.role, activeTab]);
 
   const loadUserProfile = async (token: string) => {
     try {
@@ -173,6 +185,7 @@ export default function Management() {
         setActiveTab('blog');
         loadPosts();
         loadGalleryItems();
+        loadPayments();
       } else {
         setActiveTab('membership');
         loadUserProfile(data.token);
@@ -221,6 +234,74 @@ export default function Management() {
     } catch (err) {
       console.error('Failed to load gallery items:', err);
       setGalleryItems([]);
+    }
+  };
+
+  const loadPayments = async () => {
+    try {
+      const token = localStorage.getItem('auth-token');
+      if (!token) return;
+
+      const url = paymentFilter === 'all' ? '/api/payments/manage' : `/api/payments/manage?status=${paymentFilter}`;
+      
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setPayments(data.payments || []);
+        
+        // Process stats
+        const stats = data.stats || [];
+        const processedStats = {
+          total: stats.reduce((sum: number, stat: any) => sum + stat.count, 0),
+          pending: stats.find((s: any) => s._id === 'pending')?.count || 0,
+          completed: stats.find((s: any) => s._id === 'completed')?.count || 0,
+          confirming: stats.find((s: any) => s._id === 'confirming')?.count || 0,
+          expired: stats.find((s: any) => s._id === 'expired')?.count || 0,
+          cancelled: stats.find((s: any) => s._id === 'cancelled')?.count || 0
+        };
+        setPaymentStats(processedStats);
+      }
+    } catch (error) {
+      console.error('Error fetching payments:', error);
+      setPayments([]);
+    }
+  };
+
+  const handlePaymentAction = async (paymentId: string, action: string, transactionHash?: string) => {
+    try {
+      const token = localStorage.getItem('auth-token');
+      if (!token) return;
+
+      const response = await fetch('/api/payments/manage', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          paymentId,
+          action,
+          transactionHash,
+          notes: `${action} by admin`
+        })
+      });
+
+      if (response.ok) {
+        // Reload payments to reflect changes
+        await loadPayments();
+        alert(`Payment ${action}ed successfully!`);
+      } else {
+        const error = await response.json();
+        alert(`Failed to ${action} payment: ${error.message}`);
+      }
+    } catch (error) {
+      console.error(`Error ${action}ing payment:`, error);
+      alert(`Failed to ${action} payment`);
     }
   };
 

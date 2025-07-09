@@ -17,7 +17,16 @@ export async function sendMembershipConfirmation(
   email: string, 
   firstName: string, 
   lastName: string, 
-  tier: string
+  tier: string,
+  paymentInfo?: {
+    tempPassword?: string;
+    paymentMethod?: string;
+    cryptoDetails?: {
+      currency: string;
+      amount: number;
+      transactionHash: string;
+    };
+  }
 ) {
   try {
     const transporter = createTransporter();
@@ -99,8 +108,28 @@ export async function sendMembershipConfirmation(
               ${currentTier.benefits.map(benefit => `<div class="benefit-item">✅ ${benefit}</div>`).join('')}
             </div>
             
-            ${tier !== 'sapphire' ? `
+            ${paymentInfo?.paymentMethod === 'cryptocurrency' && paymentInfo.cryptoDetails ? `
+              <div style="background: #e6f7ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #1890ff;">
+                <h3>🪙 Payment Confirmed</h3>
+                <p><strong>Payment Method:</strong> Cryptocurrency</p>
+                <p><strong>Currency:</strong> ${paymentInfo.cryptoDetails.currency.toUpperCase()}</p>
+                <p><strong>Amount:</strong> ${paymentInfo.cryptoDetails.amount}</p>
+                <p><strong>Transaction Hash:</strong> <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 4px;">${paymentInfo.cryptoDetails.transactionHash}</code></p>
+                <p>Your cryptocurrency payment has been confirmed and your membership is now active!</p>
+              </div>
+            ` : tier !== 'sapphire' ? `
               <p><strong>Important:</strong> Your premium membership billing will be processed separately. You'll receive payment information within 24 hours.</p>
+            ` : ''}
+            
+            ${paymentInfo?.tempPassword ? `
+              <div style="background: #fff7e6; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #fa8c16;">
+                <h3>🔐 Account Login Details</h3>
+                <p>Your account has been created with the following credentials:</p>
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Temporary Password:</strong> <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 4px;">${paymentInfo.tempPassword}</code></p>
+                <p><strong>⚠️ Important:</strong> Please login and change your password immediately for security.</p>
+                <p><a href="https://greenbritain.club/management" style="background: #1890ff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Login to Your Dashboard</a></p>
+              </div>
             ` : ''}
             
             <p>To get started:</p>

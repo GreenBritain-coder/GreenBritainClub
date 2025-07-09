@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import CryptoPayment from '../components/CryptoPayment';
 
 export default function Membership() {
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
@@ -230,6 +231,8 @@ function RegistrationForm({ selectedTier }: { selectedTier: string }) {
     confirmPassword: '',
     agreeTerms: false
   });
+  const [paymentMethod, setPaymentMethod] = useState<'traditional' | 'crypto'>('traditional');
+  const [showCryptoPayment, setShowCryptoPayment] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -266,8 +269,15 @@ function RegistrationForm({ selectedTier }: { selectedTier: string }) {
       return;
     }
 
+    // Handle crypto payment for paid tiers
+    if (selectedTier !== 'sapphire' && paymentMethod === 'crypto') {
+      setShowCryptoPayment(true);
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
-      // Submit registration data
+      // Submit registration data (for sapphire or traditional payment)
       const response = await fetch('/api/membership/register', {
         method: 'POST',
         headers: {
@@ -300,6 +310,15 @@ function RegistrationForm({ selectedTier }: { selectedTier: string }) {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleCryptoPaymentComplete = () => {
+    setSuccess(true);
+    setShowCryptoPayment(false);
+  };
+
+  const handleCryptoPaymentCancel = () => {
+    setShowCryptoPayment(false);
   };
 
   if (success) {
@@ -421,7 +440,7 @@ function RegistrationForm({ selectedTier }: { selectedTier: string }) {
         </div>
       </div>
       
-      <div className="mb-8">
+      <div className="mb-6">
         <div className="flex items-start">
           <input
             type="checkbox"
@@ -437,6 +456,74 @@ function RegistrationForm({ selectedTier }: { selectedTier: string }) {
           </label>
         </div>
       </div>
+
+      {/* Payment Method Selection for Paid Tiers */}
+      {selectedTier !== 'sapphire' && (
+        <div className="mb-8">
+          <label className="block text-white mb-4 font-medium">
+            Choose Payment Method:
+          </label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button
+              type="button"
+              onClick={() => setPaymentMethod('traditional')}
+              className={`p-4 rounded-lg border-2 transition-all ${
+                paymentMethod === 'traditional'
+                  ? 'border-green-400 bg-green-400/20'
+                  : 'border-green-400/30 bg-black/30 hover:border-green-400/50'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                  </svg>
+                </div>
+                <div className="text-left">
+                  <div className="text-white font-medium">Traditional Payment</div>
+                  <div className="text-green-300 text-sm">Credit/Debit Card, PayPal</div>
+                </div>
+              </div>
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => setPaymentMethod('crypto')}
+              className={`p-4 rounded-lg border-2 transition-all ${
+                paymentMethod === 'crypto'
+                  ? 'border-green-400 bg-green-400/20'
+                  : 'border-green-400/30 bg-black/30 hover:border-green-400/50'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">₿</span>
+                </div>
+                <div className="text-left">
+                  <div className="text-white font-medium">Cryptocurrency</div>
+                  <div className="text-green-300 text-sm">BTC, ETH, LTC, USDT</div>
+                </div>
+              </div>
+            </button>
+          </div>
+          
+          {paymentMethod === 'traditional' && (
+            <div className="mt-4 p-4 bg-blue-500/20 border border-blue-400/30 rounded-lg">
+              <p className="text-blue-300 text-sm">
+                ℹ️ Traditional payment processing will be set up after registration. You'll receive payment instructions via email.
+              </p>
+            </div>
+          )}
+          
+          {paymentMethod === 'crypto' && (
+            <div className="mt-4 p-4 bg-orange-500/20 border border-orange-400/30 rounded-lg">
+              <p className="text-orange-300 text-sm">
+                🪙 Pay instantly with cryptocurrency. Your membership will be activated automatically after payment confirmation.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
       
       <div className="flex justify-end">
         <button
@@ -459,4 +546,18 @@ function RegistrationForm({ selectedTier }: { selectedTier: string }) {
       </div>
     </form>
   );
+
+  // Show crypto payment component when crypto payment is selected
+  if (showCryptoPayment) {
+    return (
+      <CryptoPayment
+        tier={selectedTier}
+        email={formData.email}
+        firstName={formData.firstName}
+        lastName={formData.lastName}
+        onPaymentComplete={handleCryptoPaymentComplete}
+        onCancel={handleCryptoPaymentCancel}
+      />
+    );
+  }
 } 
