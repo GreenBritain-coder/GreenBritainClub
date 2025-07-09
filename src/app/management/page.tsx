@@ -408,7 +408,7 @@ export default function Management() {
         background: 'linear-gradient(135deg, #065f46, #047857, #059669)', 
         padding: '20px'
       }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <div className="max-w-4xl mx-auto px-4">
           <div style={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
@@ -603,7 +603,7 @@ export default function Management() {
       background: 'linear-gradient(135deg, #065f46, #047857, #059669)', 
       padding: '20px'
     }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      <div className="max-w-6xl mx-auto px-4">
         {/* Header */}
         <div style={{ 
           display: 'flex', 

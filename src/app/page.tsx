@@ -63,7 +63,7 @@ export default async function Home() {
                 <p className="text-green-300 text-sm">Premium Cannabis Community</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="hidden md:flex items-center space-x-4">
               <Link 
                 href="/blog" 
                 className="text-white hover:text-green-400 font-medium transition-colors"
@@ -83,7 +83,20 @@ export default async function Home() {
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
                 </svg>
-                <span>Join Telegram</span>
+                <span className="hidden lg:inline">Join Telegram</span>
+                <span className="md:inline lg:hidden">Telegram</span>
+              </Link>
+            </div>
+            
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <Link 
+                href="#telegram" 
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-full font-semibold transition-colors flex items-center space-x-2"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
+                </svg>
               </Link>
             </div>
           </div>
@@ -127,7 +140,7 @@ export default async function Home() {
 
       {/* Features Section */}
       <section className="container mx-auto px-4 py-16">
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-green-400/20">
             <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mb-4">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -170,7 +183,7 @@ export default async function Home() {
           Join our community with a membership tier that suits your needs and unlock exclusive benefits
         </p>
         
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Sapphire Tier */}
           <div className="bg-black/20 backdrop-blur-sm rounded-lg overflow-hidden border border-blue-400/30 transition-transform hover:scale-105">
             <div className="bg-blue-500/20 p-6 text-center border-b border-blue-400/30">
@@ -217,7 +230,7 @@ export default async function Home() {
           </div>
           
           {/* Ruby Tier */}
-          <div className="bg-black/20 backdrop-blur-sm rounded-lg overflow-hidden border border-red-400/30 transform scale-105 shadow-lg shadow-red-900/20">
+          <div className="bg-black/20 backdrop-blur-sm rounded-lg overflow-hidden border border-red-400/30 transform md:scale-105 shadow-lg shadow-red-900/20">
             <div className="bg-red-500/20 p-6 text-center border-b border-red-400/30 relative">
               <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                 POPULAR

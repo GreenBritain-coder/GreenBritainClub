@@ -1,139 +1,155 @@
 'use client';
 
-import React, { useState } from 'react';
-import Image from 'next/image';
+import React, { useState, useRef } from 'react';
 
-export default function ImageUploader({ value, onChange }) {
-  const [previewUrl, setPreviewUrl] = useState(value || '');
-  const [isUploading, setIsUploading] = useState(false);
-  
-  // Collection of cannabis-related Unsplash images
-  const unsplashImages = [
-    'https://images.unsplash.com/photo-1503262028195-93c528f03218?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1536152470836-b943b246224c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1603909223429-69bb7101f92d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1485149476586-20f33627b8c8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1559827291-72ee739d0d9a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1457573358540-3f000e9d2d8f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1527525443983-6e60c75fff46?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1456428199391-a3b1cb5e93ab?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-  ];
-  
-  const handleUpload = (e) => {
+const ImageUploader = ({ value, onChange }) => {
+  const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleFileUpload = async (file) => {
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image size must be less than 5MB');
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        onChange(data.url);
+      } else {
+        const errorData = await response.json();
+        alert(`Upload failed: ${errorData.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert('Upload failed. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      handleFileUpload(file);
+    }
+  };
+
+  const handleDrop = (e) => {
     e.preventDefault();
-    setIsUploading(true);
+    setDragOver(false);
     
-    // Simulate upload delay
-    setTimeout(() => {
-      // In a real app, this would be an actual upload to a server/CDN
-      // For demo purposes, we'll use a random Unsplash image
-      const randomImage = unsplashImages[Math.floor(Math.random() * unsplashImages.length)];
-      setPreviewUrl(randomImage);
-      onChange(randomImage);
-      setIsUploading(false);
-    }, 1500);
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      handleFileUpload(file);
+    }
   };
-  
-  const handleCustomUrl = (e) => {
-    const url = e.target.value;
-    setPreviewUrl(url);
-    onChange(url);
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setDragOver(true);
   };
-  
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+  };
+
+  const handleRemoveImage = () => {
+    onChange('');
+  };
+
+  const handleClickUpload = () => {
+    fileInputRef.current?.click();
+  };
+
   return (
-    <div>
-      <div style={{ marginBottom: '15px' }}>
-        <label style={{ display: 'block', color: 'white', marginBottom: '8px', fontWeight: 'bold' }}>
-          Featured Image URL
-        </label>
-        <input
-          type="text"
-          value={previewUrl}
-          onChange={handleCustomUrl}
-          style={{
-            width: '100%',
-            padding: '12px',
-            background: 'rgba(0,0,0,0.3)',
-            border: '1px solid rgba(34, 197, 94, 0.3)',
-            borderRadius: '8px',
-            color: 'white',
-            fontSize: '16px'
-          }}
-          placeholder="Enter image URL or generate one below"
-        />
-      </div>
+    <div className="w-full">
+      <label className="block text-sm font-medium text-white mb-2">
+        Featured Image
+      </label>
       
-      <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
-        <button
-          onClick={handleUpload}
-          disabled={isUploading}
-          style={{
-            padding: '10px 15px',
-            background: isUploading ? '#16a34a' : '#22c55e',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: isUploading ? 'not-allowed' : 'pointer',
-            fontWeight: 'bold',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}
-          type="button"
-        >
-          {isUploading ? (
-            <>
-              <div style={{
-                width: '16px',
-                height: '16px',
-                border: '2px solid rgba(255,255,255,0.3)',
-                borderTop: '2px solid white',
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite'
-              }}></div>
-              Generating...
-            </>
-          ) : (
-            <>🖼️ Generate Random Image</>
-          )}
-        </button>
-        
-        <button
-          onClick={() => {
-            setPreviewUrl('');
-            onChange('');
-          }}
-          style={{
-            padding: '10px 15px',
-            background: 'rgba(0,0,0,0.3)',
-            color: 'white',
-            border: '1px solid rgba(255,255,255,0.2)',
-            borderRadius: '6px',
-            cursor: 'pointer'
-          }}
-          type="button"
-        >
-          Clear
-        </button>
-      </div>
-      
-      {previewUrl && (
-        <div style={{ 
-          marginTop: '15px', 
-          borderRadius: '8px',
-          overflow: 'hidden',
-          position: 'relative',
-          width: '100%',
-          height: '200px'
-        }}>
-          <Image
-            src={previewUrl}
+      {value ? (
+        <div className="relative">
+          <img
+            src={value}
             alt="Featured image preview"
-            fill
-            style={{ objectFit: 'cover' }}
+            className="w-full h-48 object-cover rounded-lg border border-green-400/30"
           />
+          <button
+            type="button"
+            onClick={handleRemoveImage}
+            className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-2 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      ) : (
+        <div
+          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+            dragOver
+              ? 'border-green-400 bg-green-400/10'
+              : 'border-green-400/30 hover:border-green-400/50'
+          }`}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+        >
+          {uploading ? (
+            <div className="flex flex-col items-center">
+              <div className="w-8 h-8 border-2 border-green-400/30 border-t-green-400 rounded-full animate-spin mb-2"></div>
+              <p className="text-green-300">Uploading...</p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center">
+              <svg className="w-12 h-12 text-green-400/50 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <p className="text-green-300 mb-2">Drop an image here or click to upload</p>
+              <p className="text-green-400/70 text-sm">PNG, JPG, GIF up to 5MB</p>
+              <button
+                type="button"
+                onClick={handleClickUpload}
+                className="mt-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              >
+                Choose Image
+              </button>
+            </div>
+          )}
         </div>
       )}
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFileChange}
+        className="hidden"
+      />
     </div>
   );
-} 
+};
+
+export default ImageUploader; 
