@@ -99,7 +99,34 @@ You need a MongoDB database. Options:
 ### **Uploaded Images:**
 - Accessible at: `https://your-domain.com/uploads/filename.jpg`
 - Stored locally on server
-- Backed up with your deployment
+- **Important:** Requires persistent storage setup (see below)
+
+### **⚠️ CRITICAL: Persistent Storage Setup**
+**For Coolify deployments, you MUST configure persistent storage or uploaded images will be lost on restart!**
+
+**In Coolify Dashboard:**
+1. Go to your application
+2. Click **"Storages"** tab
+3. Click **"+ Add Storage"**
+4. Configure:
+   - **Name:** `uploads-storage`
+   - **Source:** `/data/uploads` (on host)
+   - **Destination:** `/app/public/uploads` (in container)
+   - **Type:** `bind` or `volume`
+5. **Redeploy** your application
+
+**Alternative: Use External Storage (Recommended for Production)**
+- **Cloudinary** - Image CDN service
+- **AWS S3** - Amazon cloud storage
+- **Digital Ocean Spaces** - Object storage
+- **Uploadcare** - File upload service
+
+### **Testing Upload Storage:**
+1. Upload an image via admin dashboard
+2. **Restart your Coolify application**
+3. Check if image is still accessible
+4. If not accessible = storage not persistent ❌
+5. If still accessible = storage is persistent ✅
 
 ## 🔧 Customization
 
@@ -149,10 +176,41 @@ Edit `src/app/page.tsx` and `src/app/[city]/page.tsx`
 - Check browser console for errors
 - Clear browser cache
 
-### **Image Upload Fails:**
+### **Image Upload Issues:**
+
+#### **Upload Fails (500 Error):**
 - Check file size (max 5MB)
 - Verify file type (images only)
 - Check server disk space
+- Verify write permissions to `/public/uploads/`
+
+#### **Images Show 404 Error (Most Common Issue):**
+**This is usually a persistent storage problem in Coolify!**
+
+**Quick Fix:**
+1. **Check Coolify Storage:**
+   - Go to Coolify Dashboard → Your App → "Storages" tab
+   - Ensure you have storage mapped to `/app/public/uploads`
+
+2. **Add Storage if Missing:**
+   ```
+   Source: /data/uploads (on host)
+   Destination: /app/public/uploads (in container)
+   ```
+
+3. **Verify Environment:**
+   - Check if `NODE_ENV=production` is set
+   - Verify `NEXT_PUBLIC_SITE_URL` matches your domain
+
+4. **Test Static Files:**
+   - Try accessing: `https://your-domain.com/next.svg`
+   - If this works but uploads don't = storage issue
+   - If this fails = deployment issue
+
+**Alternative Solutions:**
+- Use external storage (Cloudinary, S3, etc.)
+- Upload images as URLs instead of files
+- Check Coolify logs for errors
 
 ### **Database Issues:**
 - Verify MongoDB connection string

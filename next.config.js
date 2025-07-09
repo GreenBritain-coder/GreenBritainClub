@@ -19,6 +19,17 @@ const nextConfig = {
       },
     ],
   },
+  // Ensure static files are properly served
+  async rewrites() {
+    return [
+      {
+        source: '/uploads/:path*',
+        destination: '/uploads/:path*',
+      },
+    ];
+  },
+  // Output configuration for better deployment
+  output: 'standalone',
 };
 
 module.exports = nextConfig;

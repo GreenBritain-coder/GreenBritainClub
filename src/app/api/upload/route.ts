@@ -44,10 +44,16 @@ export async function POST(request: NextRequest) {
     // Return the public URL
     const fileUrl = `/uploads/${fileName}`;
 
+    // Log successful upload for debugging
+    console.log(`✅ File uploaded successfully: ${fileName}`);
+    console.log(`📂 Saved to: ${filePath}`);
+    console.log(`🌐 Public URL: ${fileUrl}`);
+
     return NextResponse.json({ 
       message: 'File uploaded successfully',
       url: fileUrl,
-      filename: fileName
+      filename: fileName,
+      fullPath: filePath // Add for debugging
     });
 
   } catch (error) {
