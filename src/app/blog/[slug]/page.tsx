@@ -58,7 +58,7 @@ async function getRelatedPosts(currentSlug: string, limit = 3): Promise<BlogPost
 }
 
 export async function generateMetadata(
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ): Promise<Metadata> {
   // Await params to ensure it's fully resolved
   const resolvedParams = await params;
@@ -158,9 +158,9 @@ function processMarkdown(content: string): string[] {
 }
 
 interface BlogPostPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export default async function BlogPostPage(props: BlogPostPageProps) {
