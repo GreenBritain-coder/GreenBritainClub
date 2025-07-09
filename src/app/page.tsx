@@ -1,6 +1,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import InstagramGallery from "./components/InstagramGallery";
 
 // Define blog post interface
 interface BlogPost {
@@ -398,6 +399,32 @@ export default async function Home() {
               Visit Our Blog
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* Instagram Gallery Section */}
+      <section className="container mx-auto px-4 py-16">
+        <h2 className="text-4xl font-bold text-white text-center mb-4">
+          Our <span className="text-green-400">Community</span> Gallery
+        </h2>
+        <p className="text-xl text-green-300 text-center mb-12 max-w-3xl mx-auto">
+          Follow our journey and see what's happening in the GreenBritain.Club community
+        </p>
+        <div className="max-w-4xl mx-auto mb-8">
+          <InstagramGallery maxItems={6} />
+        </div>
+        <div className="text-center">
+          <a 
+            href="https://t.me/GBShopXBot"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full font-semibold transition-colors"
+          >
+            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
+            </svg>
+            Follow Us on Telegram
+          </a>
         </div>
       </section>
 
