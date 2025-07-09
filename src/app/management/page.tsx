@@ -211,10 +211,10 @@ export default function Management() {
       }
 
       if (response.ok) {
-        // Reload posts to get updated list from database
-        await loadPosts();
+        // Close editor and reload posts
         setShowEditor(false);
         setEditingPost(null);
+        await loadPosts();
       } else {
         const errorData = await response.json();
         alert(`Failed to save post: ${errorData.error || 'Unknown error'}`);
@@ -232,361 +232,183 @@ export default function Management() {
     setEditingPost(null);
   };
 
-  // Count posts manually (no array methods)
   const countPosts = () => {
-    let total = 0;
-    let published = 0;
-    let drafts = 0;
-
-    if (posts && posts.length > 0) {
-      for (let i = 0; i < posts.length; i++) {
-        if (posts[i]) {
-          total++;
-          if (posts[i].status === 'published') published++;
-          if (posts[i].status === 'draft') drafts++;
-        }
-      }
-    }
-
+    const total = posts.length;
+    const published = posts.filter(post => post.status === 'published').length;
+    const drafts = posts.filter(post => post.status === 'draft').length;
     return { total, published, drafts };
   };
 
   const stats = countPosts();
 
-  // Login Form
   if (!isLoggedIn) {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        background: 'linear-gradient(135deg, #065f46, #047857, #059669)', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        padding: '20px'
-      }}>
-        <div style={{
-          background: 'rgba(0,0,0,0.3)',
-          padding: '40px',
-          borderRadius: '12px',
-          border: '1px solid rgba(34, 197, 94, 0.3)',
-          width: '100%',
-          maxWidth: '400px'
-        }}>
-          <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-            <div style={{
-              width: '60px',
-              height: '60px',
-              background: '#22c55e',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 20px',
-              fontSize: '24px'
-            }}>
+      <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-emerald-900 p-4 md:p-8">
+        <div className="max-w-md mx-auto">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
               🔐
             </div>
-            <h1 style={{ color: 'white', margin: '0 0 10px', fontSize: '28px' }}>Content Management</h1>
-            <p style={{ color: '#86efac', margin: 0 }}>GreenBritain.Club Blog Administration</p>
+            <h1 className="text-white mb-2 text-xl md:text-2xl lg:text-3xl font-bold">Content Management</h1>
+            <p className="text-green-300">GreenBritain.Club Blog Administration</p>
           </div>
-
-          {error && (
-            <div style={{
-              background: 'rgba(239, 68, 68, 0.2)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              padding: '15px',
-              borderRadius: '8px',
-              marginBottom: '20px',
-              color: '#fca5a5',
-              textAlign: 'center'
-            }}>
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleLogin}>
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', color: 'white', marginBottom: '8px', fontWeight: 'bold' }}>
-                Username
-              </label>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  background: 'rgba(0,0,0,0.3)',
-                  border: '1px solid rgba(34, 197, 94, 0.3)',
-                  borderRadius: '8px',
-                  color: 'white',
-                  fontSize: '16px'
-                }}
-                placeholder="Enter username..."
-                required
-                disabled={loading}
-              />
-            </div>
-
-            <div style={{ marginBottom: '30px' }}>
-              <label style={{ display: 'block', color: 'white', marginBottom: '8px', fontWeight: 'bold' }}>
-                Password
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  background: 'rgba(0,0,0,0.3)',
-                  border: '1px solid rgba(34, 197, 94, 0.3)',
-                  borderRadius: '8px',
-                  color: 'white',
-                  fontSize: '16px'
-                }}
-                placeholder="Enter password..."
-                required
-                disabled={loading}
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                width: '100%',
-                padding: '15px',
-                background: loading ? '#16a34a' : '#22c55e',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: 'bold',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px'
-              }}
-            >
-              {loading ? (
-                <>
-                  <div style={{
-                    width: '20px',
-                    height: '20px',
-                    border: '2px solid rgba(255,255,255,0.3)',
-                    borderTop: '2px solid white',
-                    borderRadius: '50%',
-                    animation: 'spin 1s linear infinite'
-                  }}></div>
-                  Logging in...
-                </>
-              ) : (
-                <>
-                  🌿 Access Management Panel
-                </>
+          
+          <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-green-400/30">
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">
+                  Username
+                </label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full px-4 py-3 bg-black/30 border border-green-400/30 rounded-lg text-white placeholder-green-300/50 focus:border-green-400 focus:outline-none"
+                  placeholder="Enter username"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 bg-black/30 border border-green-400/30 rounded-lg text-white placeholder-green-300/50 focus:border-green-400 focus:outline-none"
+                  placeholder="Enter password"
+                  required
+                />
+              </div>
+              
+              {error && (
+                <div className="bg-red-500/20 border border-red-400/30 rounded-lg p-3">
+                  <p className="text-red-300 text-sm">{error}</p>
+                </div>
               )}
-            </button>
-          </form>
-
-          <div style={{ textAlign: 'center', marginTop: '20px' }}>
-            <a href="/" style={{ color: '#22c55e', textDecoration: 'none' }}>
-              ← Back to GreenBritain.Club
-            </a>
+              
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-green-600 hover:bg-green-700 disabled:bg-green-800 text-white py-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <span>Logging in...</span>
+                  </>
+                ) : (
+                  <span>Login</span>
+                )}
+              </button>
+            </form>
+            
+            <div className="text-center mt-6">
+              <a href="/" className="text-green-400 hover:text-green-300 text-sm">
+                ← Back to Website
+              </a>
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
-  // Post Editor
   if (showEditor) {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        background: 'linear-gradient(135deg, #065f46, #047857, #059669)', 
-        padding: '20px'
-      }}>
-        <div className="max-w-4xl mx-auto px-4">
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center', 
-            marginBottom: '30px'
-          }}>
-            <h1 style={{ color: 'white', margin: 0, fontSize: '28px' }}>
-              {editingPost ? 'Edit Blog Post' : 'Create New Blog Post'}
-            </h1>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button
-                onClick={handleSavePost}
-                style={{
-                  padding: '10px 20px',
-                  background: '#22c55e',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontWeight: 'bold'
-                }}
-              >
-                💾 Save Post
-              </button>
-              <button
-                onClick={handleCancelEdit}
-                style={{
-                  padding: '10px 20px',
-                  background: '#6b7280',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer'
-                }}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-
-          <div style={{
-            background: 'rgba(0,0,0,0.2)',
-            padding: '30px',
-            borderRadius: '12px',
-            border: '1px solid rgba(34, 197, 94, 0.2)'
-          }}>
-            <div style={{ display: 'grid', gap: '20px' }}>
-              <div>
-                <label style={{ display: 'block', color: 'white', marginBottom: '8px', fontWeight: 'bold' }}>
-                  Post Title *
-                </label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) => setFormData({...formData, title: e.target.value})}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    background: 'rgba(0,0,0,0.3)',
-                    border: '1px solid rgba(34, 197, 94, 0.3)',
-                    borderRadius: '8px',
-                    color: 'white',
-                    fontSize: '16px'
-                  }}
-                  placeholder="Enter an engaging post title..."
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', color: 'white', marginBottom: '8px', fontWeight: 'bold' }}>
-                  URL Slug (SEO-friendly URL)
-                </label>
-                <input
-                  type="text"
-                  value={formData.slug}
-                  onChange={(e) => setFormData({...formData, slug: e.target.value})}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    background: 'rgba(0,0,0,0.3)',
-                    border: '1px solid rgba(34, 197, 94, 0.3)',
-                    borderRadius: '8px',
-                    color: 'white',
-                    fontSize: '16px'
-                  }}
-                  placeholder="will-be-auto-generated-from-title"
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', color: 'white', marginBottom: '8px', fontWeight: 'bold' }}>
-                  Publication Status
-                </label>
-                <select
-                  value={formData.status}
-                  onChange={(e) => setFormData({...formData, status: e.target.value as 'published' | 'draft'})}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    background: 'rgba(0,0,0,0.3)',
-                    border: '1px solid rgba(34, 197, 94, 0.3)',
-                    borderRadius: '8px',
-                    color: 'white',
-                    fontSize: '16px'
-                  }}
+      <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-emerald-900 p-4 md:p-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 md:p-8 border border-green-400/30">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+              <h1 className="text-white text-xl md:text-2xl lg:text-3xl font-bold">
+                {editingPost ? 'Edit Post' : 'Create New Post'}
+              </h1>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleCancelEdit}
+                  className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors"
                 >
-                  <option value="draft">Draft (Not Public)</option>
-                  <option value="published">Published (Live on Site)</option>
-                </select>
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSavePost}
+                  disabled={loading}
+                  className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-800 text-white rounded-lg font-medium transition-colors"
+                >
+                  {loading ? 'Saving...' : 'Save Post'}
+                </button>
               </div>
-
-              {/* Publication Date */}
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ 
-                  display: 'block', 
-                  color: '#22c55e', 
-                  marginBottom: '8px', 
-                  fontWeight: 'bold' 
-                }}>
-                  Publication Date
-                </label>
-                <input
-                  type="datetime-local"
-                  value={formData.createdAt ? new Date(formData.createdAt).toISOString().slice(0, 16) : ''}
-                  onChange={(e) => {
-                    const dateValue = e.target.value ? new Date(e.target.value).toISOString() : '';
-                    setFormData({...formData, createdAt: dateValue});
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    background: 'rgba(0,0,0,0.3)',
-                    border: '1px solid rgba(34, 197, 94, 0.3)',
-                    borderRadius: '6px',
-                    color: 'white',
-                    fontSize: '16px'
-                  }}
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">
+                    Title
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.title}
+                    onChange={(e) => setFormData({...formData, title: e.target.value})}
+                    className="w-full px-4 py-3 bg-black/30 border border-green-400/30 rounded-lg text-white placeholder-green-300/50 focus:border-green-400 focus:outline-none"
+                    placeholder="Enter post title"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">
+                    Slug (URL)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.slug}
+                    onChange={(e) => setFormData({...formData, slug: e.target.value})}
+                    className="w-full px-4 py-3 bg-black/30 border border-green-400/30 rounded-lg text-white placeholder-green-300/50 focus:border-green-400 focus:outline-none"
+                    placeholder="leave-blank-for-auto-generation"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">
+                    Excerpt
+                  </label>
+                  <textarea
+                    value={formData.excerpt}
+                    onChange={(e) => setFormData({...formData, excerpt: e.target.value})}
+                    className="w-full px-4 py-3 bg-black/30 border border-green-400/30 rounded-lg text-white placeholder-green-300/50 focus:border-green-400 focus:outline-none h-24 resize-none"
+                    placeholder="Brief description of the post"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">
+                    Status
+                  </label>
+                  <select
+                    value={formData.status}
+                    onChange={(e) => setFormData({...formData, status: e.target.value as 'published' | 'draft'})}
+                    className="w-full px-4 py-3 bg-black/30 border border-green-400/30 rounded-lg text-white focus:border-green-400 focus:outline-none"
+                  >
+                    <option value="draft">Draft</option>
+                    <option value="published">Published</option>
+                  </select>
+                </div>
+                
+                <ImageUploader
+                  value={formData.featuredImage}
+                  onChange={(url: string) => setFormData({...formData, featuredImage: url})}
                 />
               </div>
-
-              {/* Image Uploader */}
+              
               <div>
-                <ImageUploader 
-                  value={formData.featuredImage} 
-                  onChange={(url: string) => setFormData({...formData, featuredImage: url})} 
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', color: 'white', marginBottom: '8px', fontWeight: 'bold' }}>
-                  Post Excerpt (Summary)
-                </label>
-                <textarea
-                  value={formData.excerpt}
-                  onChange={(e) => setFormData({...formData, excerpt: e.target.value})}
-                  rows={3}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    background: 'rgba(0,0,0,0.3)',
-                    border: '1px solid rgba(34, 197, 94, 0.3)',
-                    borderRadius: '8px',
-                    color: 'white',
-                    fontSize: '16px',
-                    fontFamily: 'inherit',
-                    resize: 'vertical'
-                  }}
-                  placeholder="Write a brief, engaging summary of your cannabis blog post..."
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', color: 'white', marginBottom: '8px', fontWeight: 'bold' }}>
-                  Full Content
+                <label className="block text-sm font-medium text-white mb-2">
+                  Content
                 </label>
                 <RichTextEditor
                   value={formData.content}
-                  onChange={(value: string) => setFormData({...formData, content: value})}
+                  onChange={(content: string) => setFormData({...formData, content})}
                 />
               </div>
             </div>
@@ -596,277 +418,147 @@ export default function Management() {
     );
   }
 
-  // Dashboard
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      background: 'linear-gradient(135deg, #065f46, #047857, #059669)', 
-      padding: '20px'
-    }}>
+    <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-emerald-900 p-4 md:p-8">
       <div className="max-w-6xl mx-auto px-4">
         {/* Header */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          marginBottom: '30px',
-          flexWrap: 'wrap',
-          gap: '20px'
-        }}>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h1 style={{ color: 'white', margin: '0 0 10px', fontSize: '32px' }}>Content Management</h1>
-            <p style={{ color: '#86efac', margin: 0 }}>Manage your cannabis blog posts and content</p>
+            <h1 className="text-white mb-2 text-xl md:text-2xl lg:text-3xl font-bold">Content Management</h1>
+            <p className="text-green-300">Manage your cannabis blog posts and content</p>
           </div>
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div className="flex flex-col sm:flex-row gap-2">
             <button
               onClick={handleNewPost}
-              style={{
-                padding: '12px 24px',
-                background: '#22c55e',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '16px',
-                cursor: 'pointer',
-                fontWeight: 'bold'
-              }}
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
             >
-              ✏️ Create New Post
+              + New Post
             </button>
             <button
               onClick={handleLogout}
-              style={{
-                padding: '12px 24px',
-                background: '#dc2626',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '16px',
-                cursor: 'pointer',
-                fontWeight: 'bold'
-              }}
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
             >
-              🚪 Logout
+              Logout
             </button>
           </div>
         </div>
-
+        
         {/* Stats */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-          gap: '20px', 
-          marginBottom: '30px' 
-        }}>
-          <div style={{
-            background: 'rgba(0,0,0,0.2)',
-            padding: '20px',
-            borderRadius: '12px',
-            border: '1px solid rgba(34, 197, 94, 0.2)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-              <div style={{
-                width: '50px',
-                height: '50px',
-                background: '#22c55e',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '20px'
-              }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
+          <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 md:p-6 border border-green-400/30">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center text-lg">
                 📝
               </div>
               <div>
-                <p style={{ color: '#86efac', margin: '0 0 5px', fontSize: '14px' }}>Total Posts</p>
-                <p style={{ color: 'white', margin: 0, fontSize: '24px', fontWeight: 'bold' }}>{stats.total}</p>
+                <p className="text-green-300 text-sm mb-1">Total Posts</p>
+                <p className="text-white text-xl md:text-2xl font-bold">{stats.total}</p>
               </div>
             </div>
           </div>
-
-          <div style={{
-            background: 'rgba(0,0,0,0.2)',
-            padding: '20px',
-            borderRadius: '12px',
-            border: '1px solid rgba(34, 197, 94, 0.2)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-              <div style={{
-                width: '50px',
-                height: '50px',
-                background: '#3b82f6',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '20px'
-              }}>
-                🌐
+          
+          <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 md:p-6 border border-blue-400/30">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-lg">
+                ✅
               </div>
               <div>
-                <p style={{ color: '#86efac', margin: '0 0 5px', fontSize: '14px' }}>Published</p>
-                <p style={{ color: 'white', margin: 0, fontSize: '24px', fontWeight: 'bold' }}>{stats.published}</p>
+                <p className="text-green-300 text-sm mb-1">Published</p>
+                <p className="text-white text-xl md:text-2xl font-bold">{stats.published}</p>
               </div>
             </div>
           </div>
-
-          <div style={{
-            background: 'rgba(0,0,0,0.2)',
-            padding: '20px',
-            borderRadius: '12px',
-            border: '1px solid rgba(34, 197, 94, 0.2)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-              <div style={{
-                width: '50px',
-                height: '50px',
-                background: '#eab308',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '20px'
-              }}>
+          
+          <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 md:p-6 border border-yellow-400/30">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-yellow-600 rounded-lg flex items-center justify-center text-lg">
                 📄
               </div>
               <div>
-                <p style={{ color: '#86efac', margin: '0 0 5px', fontSize: '14px' }}>Drafts</p>
-                <p style={{ color: 'white', margin: 0, fontSize: '24px', fontWeight: 'bold' }}>{stats.drafts}</p>
+                <p className="text-green-300 text-sm mb-1">Drafts</p>
+                <p className="text-white text-xl md:text-2xl font-bold">{stats.drafts}</p>
               </div>
             </div>
           </div>
         </div>
-
+        
         {/* Posts List */}
-        <div style={{
-          background: 'rgba(0,0,0,0.2)',
-          padding: '30px',
-          borderRadius: '12px',
-          border: '1px solid rgba(34, 197, 94, 0.2)'
-        }}>
-          <h2 style={{ color: 'white', margin: '0 0 20px', fontSize: '24px' }}>Your Blog Posts</h2>
+        <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 md:p-8 border border-green-400/30">
+          <h2 className="text-white mb-5 text-lg md:text-xl lg:text-2xl font-bold">Your Blog Posts</h2>
           
-          {!posts || posts.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px' }}>
-              <div style={{
-                width: '80px',
-                height: '80px',
-                background: 'rgba(34, 197, 94, 0.2)',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 20px',
-                fontSize: '32px'
-              }}>
-                🌿
+          {posts.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-green-600/20 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                📝
               </div>
-              <p style={{ color: '#86efac', margin: '0 0 15px', fontSize: '18px' }}>No blog posts yet</p>
-              <p style={{ color: '#86efac', margin: '0 0 20px' }}>Start creating amazing cannabis content for your community!</p>
+              <p className="text-green-300 text-lg mb-3">No blog posts yet</p>
+              <p className="text-green-400/80 mb-6">Start creating amazing cannabis content for your community!</p>
               <button
                 onClick={handleNewPost}
-                style={{
-                  padding: '12px 24px',
-                  background: '#22c55e',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                  cursor: 'pointer',
-                  fontWeight: 'bold'
-                }}
+                className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
               >
-                ✏️ Write Your First Post
+                Create Your First Post
               </button>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            <div className="space-y-4">
               {posts.map((post, index) => (
-                <div key={index} style={{
-                  background: 'rgba(0,0,0,0.3)',
-                  padding: '20px',
-                  borderRadius: '8px',
-                  border: '1px solid rgba(34, 197, 94, 0.2)',
-                  display: 'flex',
-                  gap: '20px'
-                }}>
-                  {post.featuredImage && (
-                    <div style={{ 
-                      width: '120px',
-                      height: '80px',
-                      borderRadius: '6px',
-                      overflow: 'hidden',
-                      position: 'relative',
-                      flexShrink: 0
-                    }}>
-                      <img 
-                        src={post.featuredImage} 
-                        alt={post.title || 'Blog post'} 
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover'
-                        }}
-                      />
-                    </div>
-                  )}
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: '20px' }}>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '10px' }}>
-                          <h3 style={{ color: 'white', margin: 0, fontSize: '20px' }}>
-                            {post.title || 'Untitled Post'}
-                          </h3>
-                          <span style={{
-                            padding: '4px 12px',
-                            borderRadius: '20px',
-                            fontSize: '12px',
-                            fontWeight: 'bold',
-                            background: post.status === 'published' ? '#22c55e' : '#eab308',
-                            color: 'white'
-                          }}>
-                            {post.status === 'published' ? '🌐 LIVE' : '📝 DRAFT'}
-                          </span>
-                        </div>
-                        <p style={{ color: '#86efac', margin: '0 0 5px', fontSize: '14px' }}>
-                          URL: /{post.slug || 'no-slug-set'}
-                        </p>
-                        <p style={{ color: '#86efac', margin: '0 0 10px' }}>
-                          {post.excerpt || 'No excerpt provided'}
-                        </p>
-                        <p style={{ color: '#22c55e', margin: 0, fontSize: '14px' }}>
-                          Created: {post.createdAt ? new Date(post.createdAt).toLocaleDateString() : 'Unknown date'}
-                        </p>
+                <div key={index} className="bg-black/30 rounded-lg p-4 md:p-6 border border-green-400/20 hover:border-green-400/40 transition-colors">
+                  <div className="flex flex-col lg:flex-row gap-4">
+                    {post.featuredImage && (
+                      <div className="lg:w-48 lg:flex-shrink-0">
+                        <img
+                          src={post.featuredImage}
+                          alt={post.title}
+                          className="w-full h-32 lg:h-24 object-cover rounded-lg"
+                        />
                       </div>
-                      <div style={{ display: 'flex', gap: '10px' }}>
-                        <button
-                          onClick={() => handleEditPost(post)}
-                          style={{
-                            padding: '8px 16px',
-                            background: '#3b82f6',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            fontSize: '14px'
-                          }}
-                        >
-                          ✏️ Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeletePost(post)}
-                          style={{
-                            padding: '8px 16px',
-                            background: '#dc2626',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            fontSize: '14px'
-                          }}
-                        >
-                          🗑️ Delete
-                        </button>
+                    )}
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-2">
+                            <h3 className="text-white text-lg md:text-xl font-semibold truncate">
+                              {post.title || 'Untitled'}
+                            </h3>
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium self-start ${
+                              post.status === 'published'
+                                ? 'bg-green-600/20 text-green-400 border border-green-400/30'
+                                : 'bg-yellow-600/20 text-yellow-400 border border-yellow-400/30'
+                            }`}>
+                              {post.status}
+                            </span>
+                          </div>
+                          <p className="text-green-300 text-sm mb-1">
+                            /{post.slug || 'no-slug'}
+                          </p>
+                          <p className="text-green-400/80 text-sm mb-2 line-clamp-2">
+                            {post.excerpt || 'No excerpt available'}
+                          </p>
+                          <p className="text-green-500 text-xs">
+                            {new Date(post.createdAt).toLocaleDateString('en-GB', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric'
+                            })}
+                          </p>
+                        </div>
+                        
+                        <div className="flex gap-2 self-start">
+                          <button
+                            onClick={() => handleEditPost(post)}
+                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg font-medium transition-colors min-w-[64px]"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeletePost(post)}
+                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg font-medium transition-colors min-w-[64px]"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -876,14 +568,6 @@ export default function Management() {
           )}
         </div>
       </div>
-      
-      {/* Animation styles */}
-      <style jsx global>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 } 
