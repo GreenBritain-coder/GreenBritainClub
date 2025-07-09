@@ -25,7 +25,7 @@ export async function sendMembershipConfirmation(
     // Determine tier details
          const tierDetails = {
        sapphire: {
-         name: '💎 Sapphire (Free)',
+         name: '🔷 Sapphire (Free)',
          price: 'Free',
         benefits: [
           'Access to basic blog content',

@@ -9,7 +9,7 @@ export default function Membership() {
   const tiers = [
     {
       id: 'sapphire',
-      name: '💎 Sapphire',
+      name: '🔷 Sapphire',
       price: 'Free',
       color: 'blue',
       features: [
@@ -150,7 +150,7 @@ export default function Membership() {
                 >
                   <div className={`w-16 h-16 ${colorClasses.bg} rounded-full flex items-center justify-center mx-auto mb-4`}>
                     <span className="text-white font-bold text-3xl">
-                      {tier.id === 'sapphire' ? '💎' : tier.id === 'ruby' ? '♦️' : '💎'}
+                      {tier.id === 'sapphire' ? '🔷' : tier.id === 'ruby' ? '♦️' : '💎'}
                     </span>
                   </div>
                   <h3 className={`text-2xl font-bold ${colorClasses.text} text-center mb-2`}>
