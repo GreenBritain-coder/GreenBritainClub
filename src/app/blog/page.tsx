@@ -1,6 +1,7 @@
 ﻿import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import Navigation from '../components/Navigation';
 
 export const metadata = {
   title: "Cannabis Blog | GreenBritain.Club",
@@ -33,8 +34,10 @@ export default async function BlogPage() {
   const defaultImage = 'https://images.unsplash.com/photo-1456428199391-a3b1cb5e93ab?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80';
   
   return (
-    <main className="min-h-screen bg-gradient-to-b from-green-900 to-green-950">
-      <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-emerald-900">
+      <Navigation />
+      <main>
+        <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-white mb-4">GreenBritain.Club Blog</h1>
           <p className="text-xl text-green-300 max-w-3xl mx-auto">
@@ -145,7 +148,8 @@ export default async function BlogPage() {
             </div>
           </div>
         )}
-      </div>
-    </main>
+        </div>
+      </main>
+    </div>
   );
 }

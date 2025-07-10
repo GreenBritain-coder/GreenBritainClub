@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
+import Navigation from '../../components/Navigation';
 
 // Define blog post interface
 interface BlogPost {
@@ -188,8 +189,10 @@ export default async function BlogPostPage(props: BlogPostPageProps) {
   const hasCities = post.cities && post.cities.length > 0;
   
   return (
-    <main className="min-h-screen bg-gradient-to-b from-green-900 to-green-950">
-      <div className="max-w-4xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-emerald-900">
+      <Navigation />
+      <main>
+        <div className="max-w-4xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
         {/* Back to blog link */}
         <div className="mb-8">
           <Link 
@@ -355,7 +358,8 @@ export default async function BlogPostPage(props: BlogPostPageProps) {
             Join Our Community
           </Link>
         </div>
-      </div>
-    </main>
+        </div>
+      </main>
+    </div>
   );
 }
