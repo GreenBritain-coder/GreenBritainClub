@@ -59,32 +59,38 @@ export default function Navigation() {
           </div>
           
           {/* Mobile menu buttons */}
-          <div className="md:hidden flex items-center space-x-2">
+          <div className="md:hidden flex flex-wrap items-center gap-1 max-w-[200px]">
             <Link 
-              href="/"
-              className="text-white hover:text-green-400 font-medium transition-colors px-3 py-2 rounded-lg"
+              href="/blog"
+              className="text-white hover:text-green-400 font-medium transition-colors px-2 py-1 rounded text-xs"
             >
-              Home
+              📝 Blog
+            </Link>
+            <Link 
+              href="/membership"
+              className="text-white hover:text-purple-400 font-medium transition-colors px-2 py-1 rounded text-xs"
+            >
+              💎 Join
             </Link>
             <Link 
               href="/management" 
-              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-full font-semibold transition-colors flex items-center space-x-1"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-full font-semibold transition-colors flex items-center gap-1 text-xs min-w-[50px]"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
-              <span className="text-sm">Login</span>
+              <span>Login</span>
             </Link>
             <a 
               href="https://t.me/GBShopXBot"
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-full font-semibold transition-colors flex items-center space-x-1"
+              className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-full font-semibold transition-colors flex items-center gap-1 text-xs min-w-[40px]"
             >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
               </svg>
-              <span className="text-sm">TG</span>
+              <span>TG</span>
             </a>
           </div>
         </div>
