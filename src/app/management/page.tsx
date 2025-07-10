@@ -75,7 +75,7 @@ export default function Management() {
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState<'blog' | 'gallery' | 'payments' | 'profile' | 'membership'>('membership');
+  const [activeTab, setActiveTab] = useState<'blog' | 'gallery' | 'payments' | 'users' | 'profile' | 'membership'>('membership');
   const [showEditor, setShowEditor] = useState(false);
   const [showGalleryForm, setShowGalleryForm] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
@@ -105,6 +105,14 @@ export default function Management() {
   const [payments, setPayments] = useState<any[]>([]);
   const [paymentStats, setPaymentStats] = useState<any>({});
   const [paymentFilter, setPaymentFilter] = useState<string>('all');
+  
+  // User management state
+  const [users, setUsers] = useState<any[]>([]);
+  const [userStats, setUserStats] = useState<any>({});
+  const [userFilter, setUserFilter] = useState<string>('all');
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [userAction, setUserAction] = useState<string>('');
 
   // Check if already logged in
   useEffect(() => {
@@ -133,6 +141,13 @@ export default function Management() {
       loadPayments();
     }
   }, [paymentFilter, isLoggedIn, user?.role, activeTab]);
+
+  // Load users when filter changes
+  useEffect(() => {
+    if (isLoggedIn && user?.role === 'admin' && activeTab === 'users') {
+      loadUsers();
+    }
+  }, [userFilter, isLoggedIn, user?.role, activeTab]);
 
   const loadUserProfile = async (token: string) => {
     try {
@@ -270,6 +285,79 @@ export default function Management() {
       console.error('Error fetching payments:', error);
       setPayments([]);
     }
+  };
+
+  const loadUsers = async () => {
+    try {
+      const token = localStorage.getItem('auth-token');
+      if (!token) return;
+
+      const url = userFilter === 'all' ? '/api/users/manage' : `/api/users/manage?status=${userFilter}`;
+      
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(data.users || []);
+        setUserStats(data.stats || {});
+      }
+    } catch (err) {
+      console.error('Failed to load users:', err);
+    }
+  };
+
+  const handleUserAction = async (userId: string, action: string, subscriptionData?: any, notes?: string) => {
+    try {
+      const token = localStorage.getItem('auth-token');
+      if (!token) return;
+
+      const response = await fetch('/api/users/manage', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          userId,
+          action,
+          subscriptionData,
+          notes
+        })
+      });
+
+      if (response.ok) {
+        // Reload users to reflect changes
+        await loadUsers();
+        setShowUserModal(false);
+        setSelectedUser(null);
+        alert(`User subscription ${action.replace('_', ' ')}d successfully!`);
+      } else {
+        const error = await response.json();
+        alert(`Failed to ${action.replace('_', ' ')} subscription: ${error.message}`);
+      }
+    } catch (error) {
+      console.error(`Error ${action}ing user subscription:`, error);
+      alert(`Failed to ${action.replace('_', ' ')} subscription`);
+    }
+  };
+
+  const openUserModal = (user: any, action: string) => {
+    setSelectedUser(user);
+    setUserAction(action);
+    setShowUserModal(true);
+  };
+
+  const getTierDisplayInfo = (tier: string) => {
+    const tierInfo = getTierInfo(tier);
+    return {
+      name: tierInfo.name,
+      price: tierInfo.price,
+      color: tierInfo.color
+    };
   };
 
   const handlePaymentAction = async (paymentId: string, action: string, transactionHash?: string) => {
@@ -1084,6 +1172,26 @@ export default function Management() {
               >
                 📸 Gallery
               </button>
+              <button
+                onClick={() => setActiveTab('payments')}
+                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                  activeTab === 'payments'
+                    ? 'bg-orange-600 text-white'
+                    : 'bg-black/30 text-green-300 hover:bg-black/50'
+                }`}
+              >
+                💰 Payments
+              </button>
+              <button
+                onClick={() => setActiveTab('users')}
+                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                  activeTab === 'users'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-black/30 text-green-300 hover:bg-black/50'
+                }`}
+              >
+                👥 Users
+              </button>
             </>
           ) : (
             <>
@@ -1189,6 +1297,82 @@ export default function Management() {
                 </div>
               </div>
             </>
+          ) : user?.role === 'admin' && activeTab === 'payments' ? (
+            <>
+              <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 md:p-6 border border-orange-400/30">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center text-lg">
+                    💰
+                  </div>
+                  <div>
+                    <p className="text-green-300 text-sm mb-1">Total Payments</p>
+                    <p className="text-white text-xl md:text-2xl font-bold">{paymentStats.total || 0}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 md:p-6 border border-green-400/30">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center text-lg">
+                    ✅
+                  </div>
+                  <div>
+                    <p className="text-green-300 text-sm mb-1">Completed</p>
+                    <p className="text-white text-xl md:text-2xl font-bold">{paymentStats.completed || 0}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 md:p-6 border border-yellow-400/30">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-yellow-600 rounded-lg flex items-center justify-center text-lg">
+                    ⏳
+                  </div>
+                  <div>
+                    <p className="text-green-300 text-sm mb-1">Pending</p>
+                    <p className="text-white text-xl md:text-2xl font-bold">{paymentStats.pending || 0}</p>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : user?.role === 'admin' && activeTab === 'users' ? (
+            <>
+              <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 md:p-6 border border-blue-400/30">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-lg">
+                    👥
+                  </div>
+                  <div>
+                    <p className="text-green-300 text-sm mb-1">Total Users</p>
+                    <p className="text-white text-xl md:text-2xl font-bold">{userStats.totalUsers || 0}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 md:p-6 border border-green-400/30">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center text-lg">
+                    ✅
+                  </div>
+                  <div>
+                    <p className="text-green-300 text-sm mb-1">Active Subscriptions</p>
+                    <p className="text-white text-xl md:text-2xl font-bold">{userStats.activeSubscriptions || 0}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 md:p-6 border border-purple-400/30">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center text-lg">
+                    💎
+                  </div>
+                  <div>
+                    <p className="text-green-300 text-sm mb-1">Premium Members</p>
+                    <p className="text-white text-xl md:text-2xl font-bold">{(userStats.rubyUsers || 0) + (userStats.diamondUsers || 0)}</p>
+                  </div>
+                </div>
+              </div>
+            </>
           ) : user?.role === 'user' && activeTab === 'membership' ? (
             <>
               <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 md:p-6 border border-blue-400/30">
@@ -1234,7 +1418,10 @@ export default function Management() {
         <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 md:p-8 border border-green-400/30">
           <h2 className="text-white mb-5 text-lg md:text-xl lg:text-2xl font-bold">
             {user?.role === 'admin' ? 
-              (activeTab === 'blog' ? 'Your Blog Posts' : 'Gallery Items') :
+              (activeTab === 'blog' ? 'Your Blog Posts' : 
+               activeTab === 'gallery' ? 'Gallery Items' :
+               activeTab === 'payments' ? 'Payment Management' :
+               activeTab === 'users' ? 'User Management' : 'Admin Panel') :
               (activeTab === 'membership' ? 'Your Membership Details' : 'Profile Settings')
             }
           </h2>
@@ -1398,6 +1585,211 @@ export default function Management() {
                 ))}
               </div>
             )
+          ) : user?.role === 'admin' && activeTab === 'payments' ? (
+            // Payments Management Content
+            <div className="space-y-6">
+              {/* Filter Controls */}
+              <div className="flex flex-wrap gap-2 mb-6">
+                {['all', 'pending', 'completed', 'confirming', 'expired', 'cancelled'].map((filter) => (
+                  <button
+                    key={filter}
+                    onClick={() => setPaymentFilter(filter)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      paymentFilter === filter
+                        ? 'bg-orange-600 text-white'
+                        : 'bg-black/30 text-green-300 hover:bg-black/50'
+                    }`}
+                  >
+                    {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                  </button>
+                ))}
+              </div>
+
+              {/* Payments List */}
+              {payments.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-orange-600/20 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                    💰
+                  </div>
+                  <p className="text-green-300 text-lg mb-3">No payments found</p>
+                  <p className="text-green-400/80">Payments will appear here when users make purchases.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {payments.map((payment) => (
+                    <div key={payment._id} className="bg-black/30 rounded-lg p-6 border border-orange-400/20 hover:border-orange-400/40 transition-colors">
+                      <div className="flex flex-col lg:flex-row justify-between lg:items-start gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-white text-lg font-semibold">
+                              {payment.firstName} {payment.lastName}
+                            </h3>
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              payment.status === 'completed' 
+                                ? 'bg-green-600/20 text-green-400 border border-green-400/30'
+                                : payment.status === 'pending'
+                                ? 'bg-yellow-600/20 text-yellow-400 border border-yellow-400/30'
+                                : payment.status === 'confirming'
+                                ? 'bg-blue-600/20 text-blue-400 border border-blue-400/30'
+                                : 'bg-red-600/20 text-red-400 border border-red-400/30'
+                            }`}>
+                              {payment.status}
+                            </span>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-green-300 text-sm mb-1">Email: <span className="text-white">{payment.email}</span></p>
+                              <p className="text-green-300 text-sm mb-1">Tier: <span className="text-white capitalize">{payment.tier}</span></p>
+                              <p className="text-green-300 text-sm mb-1">Amount: <span className="text-white">{payment.amount} {payment.cryptoSymbol}</span></p>
+                            </div>
+                            <div>
+                              <p className="text-green-300 text-sm mb-1">Confirmations: <span className="text-white">{payment.confirmations}/{payment.requiredConfirmations}</span></p>
+                              <p className="text-green-300 text-sm mb-1">Created: <span className="text-white">{new Date(payment.createdAt).toLocaleDateString()}</span></p>
+                              {payment.transactionHash && (
+                                <p className="text-green-300 text-sm mb-1">TX: <span className="text-white font-mono text-xs">{payment.transactionHash.substring(0, 20)}...</span></p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-2">
+                          {payment.status === 'pending' && (
+                            <button
+                              onClick={() => handlePaymentAction(payment._id, 'verify')}
+                              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg font-medium transition-colors"
+                            >
+                              Verify
+                            </button>
+                          )}
+                          {payment.status !== 'cancelled' && payment.status !== 'completed' && (
+                            <button
+                              onClick={() => handlePaymentAction(payment._id, 'cancel')}
+                              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg font-medium transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : user?.role === 'admin' && activeTab === 'users' ? (
+            // User Management Content
+            <div className="space-y-6">
+              {/* Filter Controls */}
+              <div className="flex flex-wrap gap-2 mb-6">
+                {['all', 'active', 'expired', 'cancelled'].map((filter) => (
+                  <button
+                    key={filter}
+                    onClick={() => setUserFilter(filter)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      userFilter === filter
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-black/30 text-green-300 hover:bg-black/50'
+                    }`}
+                  >
+                    {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                  </button>
+                ))}
+              </div>
+
+              {/* Users List */}
+              {users.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                    👥
+                  </div>
+                  <p className="text-green-300 text-lg mb-3">No users found</p>
+                  <p className="text-green-400/80">Registered users will appear here.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {users.map((user) => (
+                    <div key={user._id} className="bg-black/30 rounded-lg p-6 border border-blue-400/20 hover:border-blue-400/40 transition-colors">
+                      <div className="flex flex-col lg:flex-row justify-between lg:items-start gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-3">
+                            <h3 className="text-white text-lg font-semibold">
+                              {user.firstName} {user.lastName}
+                            </h3>
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              getTierDisplayInfo(user.subscription?.tier || 'sapphire').color === 'blue'
+                                ? 'bg-blue-600/20 text-blue-400 border border-blue-400/30'
+                                : getTierDisplayInfo(user.subscription?.tier || 'sapphire').color === 'red'
+                                ? 'bg-red-600/20 text-red-400 border border-red-400/30'
+                                : 'bg-purple-600/20 text-purple-400 border border-purple-400/30'
+                            }`}>
+                              {getTierDisplayInfo(user.subscription?.tier || 'sapphire').name}
+                            </span>
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              user.subscription?.status === 'active' 
+                                ? 'bg-green-600/20 text-green-400 border border-green-400/30'
+                                : user.subscription?.status === 'expired'
+                                ? 'bg-yellow-600/20 text-yellow-400 border border-yellow-400/30'
+                                : 'bg-red-600/20 text-red-400 border border-red-400/30'
+                            }`}>
+                              {user.subscription?.status || 'unknown'}
+                            </span>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div>
+                              <p className="text-green-300 text-sm mb-1">Email: <span className="text-white">{user.email}</span></p>
+                              <p className="text-green-300 text-sm mb-1">Tier: <span className="text-white">{user.subscription?.tier || 'sapphire'}</span></p>
+                              <p className="text-green-300 text-sm">Price: <span className="text-white">{getTierDisplayInfo(user.subscription?.tier || 'sapphire').price}</span></p>
+                            </div>
+                            <div>
+                              <p className="text-green-300 text-sm mb-1">Status: <span className="text-white capitalize">{user.subscription?.status || 'unknown'}</span></p>
+                              <p className="text-green-300 text-sm mb-1">Registered: <span className="text-white">{new Date(user.createdAt).toLocaleDateString()}</span></p>
+                              <p className="text-green-300 text-sm">Payments: <span className="text-white">{user.completedPayments || 0}/{user.totalPayments || 0}</span></p>
+                            </div>
+                            {user.latestPayment && user.latestPayment.status === 'completed' && (
+                              <div>
+                                <p className="text-green-300 text-sm mb-1">Last Payment:</p>
+                                <p className="text-white text-xs mb-1">Method: {user.latestPayment.cryptocurrency?.toUpperCase() || 'Unknown'}</p>
+                                <p className="text-white text-xs mb-1">Amount: {user.latestPayment.amount} {user.latestPayment.cryptoSymbol}</p>
+                                {user.latestPayment.transactionHash && (
+                                  <p className="text-white text-xs">TX: {user.latestPayment.transactionHash.substring(0, 12)}...</p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-2">
+                          {user.subscription?.status === 'active' && (
+                            <button
+                              onClick={() => openUserModal(user, 'cancel_subscription')}
+                              className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white text-sm rounded-lg font-medium transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          )}
+                          {user.subscription?.status === 'cancelled' && (
+                            <button
+                              onClick={() => openUserModal(user, 'reactivate_subscription')}
+                              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg font-medium transition-colors"
+                            >
+                              Reactivate
+                            </button>
+                          )}
+                          <button
+                            onClick={() => openUserModal(user, 'update_subscription')}
+                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg font-medium transition-colors"
+                          >
+                            Edit
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           ) : user?.role === 'user' && activeTab === 'membership' ? (
             // User Membership Dashboard
             <div className="space-y-6">
@@ -1567,6 +1959,106 @@ export default function Management() {
           ) : null}
         </div>
       </div>
+
+      {/* User Management Modal */}
+      {showUserModal && selectedUser && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-green-900 rounded-lg p-6 border border-green-400/30 max-w-md w-full">
+            <h3 className="text-white text-xl font-bold mb-4">
+              {userAction === 'update_subscription' ? 'Update Subscription' :
+               userAction === 'cancel_subscription' ? 'Cancel Subscription' :
+               'Reactivate Subscription'}
+            </h3>
+            
+            <div className="mb-4">
+              <p className="text-green-300 text-sm mb-2">User: <span className="text-white">{selectedUser.firstName} {selectedUser.lastName}</span></p>
+              <p className="text-green-300 text-sm mb-2">Email: <span className="text-white">{selectedUser.email}</span></p>
+              <p className="text-green-300 text-sm">Current Tier: <span className="text-white capitalize">{selectedUser.subscription?.tier || 'sapphire'}</span></p>
+            </div>
+
+            {userAction === 'update_subscription' && (
+              <div className="space-y-4 mb-6">
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">Tier</label>
+                  <select 
+                    defaultValue={selectedUser.subscription?.tier || 'sapphire'}
+                    className="w-full px-3 py-2 bg-black/30 border border-green-400/30 rounded-lg text-white focus:border-green-400 focus:outline-none"
+                    id="tierSelect"
+                  >
+                    <option value="sapphire">🔷 Sapphire (Free)</option>
+                    <option value="ruby">♦️ Ruby (£10/month)</option>
+                    <option value="diamond">💎 Diamond (£15.99/month)</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">Status</label>
+                  <select 
+                    defaultValue={selectedUser.subscription?.status || 'active'}
+                    className="w-full px-3 py-2 bg-black/30 border border-green-400/30 rounded-lg text-white focus:border-green-400 focus:outline-none"
+                    id="statusSelect"
+                  >
+                    <option value="active">Active</option>
+                    <option value="expired">Expired</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {userAction === 'cancel_subscription' && (
+              <div className="bg-red-500/20 border border-red-400/30 rounded-lg p-4 mb-6">
+                <p className="text-red-300 text-sm">Are you sure you want to cancel this user's subscription? They will lose access to premium features.</p>
+              </div>
+            )}
+
+            {userAction === 'reactivate_subscription' && (
+              <div className="bg-green-500/20 border border-green-400/30 rounded-lg p-4 mb-6">
+                <p className="text-green-300 text-sm">This will reactivate the user's subscription and restore their access to premium features.</p>
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowUserModal(false);
+                  setSelectedUser(null);
+                }}
+                className="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (userAction === 'update_subscription') {
+                    const tierSelect = document.getElementById('tierSelect') as HTMLSelectElement;
+                    const statusSelect = document.getElementById('statusSelect') as HTMLSelectElement;
+                    
+                    const subscriptionData = {
+                      tier: tierSelect.value,
+                      status: statusSelect.value,
+                      price: tierSelect.value === 'ruby' ? 10 : tierSelect.value === 'diamond' ? 15.99 : 0
+                    };
+                    
+                    handleUserAction(selectedUser._id, userAction, subscriptionData, `Subscription updated by admin`);
+                  } else {
+                    handleUserAction(selectedUser._id, userAction, null, `Subscription ${userAction.replace('_', ' ')} by admin`);
+                  }
+                }}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                  userAction === 'cancel_subscription' 
+                    ? 'bg-red-600 hover:bg-red-700 text-white'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}
+              >
+                {userAction === 'update_subscription' ? 'Update' :
+                 userAction === 'cancel_subscription' ? 'Cancel Subscription' :
+                 'Reactivate'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

@@ -76,6 +76,7 @@ export default function CryptoPayment({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Poll payment status every 30 seconds
   useEffect(() => {
@@ -84,6 +85,12 @@ export default function CryptoPayment({
     const pollStatus = async () => {
       try {
         const response = await fetch(`/api/payments/crypto/status?id=${paymentDetails.paymentId}`);
+        
+        if (!response.ok) {
+          console.error('Failed to fetch payment status:', response.status, response.statusText);
+          return;
+        }
+
         const data = await response.json();
         
         setPaymentStatus({
@@ -100,6 +107,8 @@ export default function CryptoPayment({
         }
       } catch (err) {
         console.error('Error polling payment status:', err);
+        // Don't show error to user for background polling failures
+        // The user can manually refresh if needed
       }
     };
 
@@ -108,6 +117,41 @@ export default function CryptoPayment({
 
     return () => clearInterval(interval);
   }, [paymentDetails, onPaymentComplete]);
+
+  // Manual refresh function for the refresh button
+  const refreshPaymentStatus = async () => {
+    if (!paymentDetails) return;
+
+    setRefreshing(true);
+    setError('');
+
+    try {
+      const response = await fetch(`/api/payments/crypto/status?id=${paymentDetails.paymentId}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch payment status');
+      }
+
+      const data = await response.json();
+      
+      setPaymentStatus({
+        status: data.status,
+        confirmations: data.confirmations,
+        requiredConfirmations: data.requiredConfirmations,
+        transactionHash: data.transactionHash
+      });
+
+      if (data.status === 'completed') {
+        setTimeout(() => {
+          onPaymentComplete();
+        }, 2000);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to refresh payment status');
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const createPayment = async () => {
     if (!selectedCrypto) {
@@ -190,6 +234,12 @@ export default function CryptoPayment({
   if (paymentDetails && paymentStatus) {
     return (
       <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-green-400/30">
+        {error && (
+          <div className="bg-red-500/20 border border-red-400/30 rounded-lg p-4 mb-6">
+            <p className="text-red-300">{error}</p>
+          </div>
+        )}
+        
         <div className="text-center mb-6">
           <h3 className="text-2xl font-bold text-white mb-2">
             {paymentStatus.status === 'completed' ? 'Payment Completed!' : 'Payment Pending'}
@@ -287,10 +337,23 @@ export default function CryptoPayment({
           </button>
           {paymentStatus.status !== 'completed' && (
             <button
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+              onClick={refreshPaymentStatus}
+              disabled={refreshing}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
             >
-              Refresh
+              {refreshing ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Refreshing...
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Refresh Status
+                </>
+              )}
             </button>
           )}
         </div>

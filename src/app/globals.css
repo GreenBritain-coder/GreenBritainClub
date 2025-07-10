@@ -24,3 +24,25 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Mobile-specific fixes for gallery images */
+@media (max-width: 768px) {
+  /* Ensure images in gallery maintain aspect ratio on mobile */
+  .aspect-square {
+    aspect-ratio: 1 / 1;
+    min-height: 0;
+  }
+  
+  /* Fix for Next.js Image component on mobile */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  /* Prevent image overflow on small screens */
+  [style*="object-fit: cover"] {
+    object-fit: cover !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+}

@@ -30,16 +30,16 @@ const SUPPORTED_CRYPTO = {
   }
 };
 
-// Mock payment addresses - in production, integrate with actual crypto payment service
+// Payment addresses - Replace with your actual wallet addresses
 const generatePaymentAddress = (crypto: string): string => {
   const addresses = {
-    bitcoin: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
-    ethereum: '0x742d35Cc6639C0532fEf5062356F8F4Ec3CF8Fac',
-    litecoin: 'LRy6g8hGG2JcJh8RJG8fGjJkKGGJy8K8tL',
-    usdt: '0x742d35Cc6639C0532fEf5062356F8F4Ec3CF8Fac'
+    bitcoin: process.env.BITCOIN_WALLET_ADDRESS || 'YOUR_BITCOIN_ADDRESS_HERE',
+    ethereum: process.env.ETHEREUM_WALLET_ADDRESS || 'YOUR_ETHEREUM_ADDRESS_HERE',
+    litecoin: process.env.LITECOIN_WALLET_ADDRESS || 'YOUR_LITECOIN_ADDRESS_HERE',
+    usdt: process.env.USDT_WALLET_ADDRESS || 'YOUR_USDT_ADDRESS_HERE'
   };
   
-  // In production, generate unique addresses for each payment
+  // In production, consider generating unique addresses for each payment for better tracking
   return addresses[crypto as keyof typeof addresses] || addresses.bitcoin;
 };
 
