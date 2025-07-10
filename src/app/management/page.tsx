@@ -835,17 +835,17 @@ export default function Management() {
               <h1 className="text-white text-xl md:text-2xl lg:text-3xl font-bold">
                 {editingPost ? 'Edit Post' : 'Create New Post'}
               </h1>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <button
                   onClick={handleCancelEdit}
-                  className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors"
+                  className="px-3 md:px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm md:text-base rounded-lg font-medium transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSavePost}
                   disabled={loading}
-                  className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-800 text-white rounded-lg font-medium transition-colors"
+                  className="px-3 md:px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-800 text-white text-sm md:text-base rounded-lg font-medium transition-colors"
                 >
                   {loading ? 'Saving...' : 'Save Post'}
                 </button>
@@ -937,17 +937,17 @@ export default function Management() {
               <h1 className="text-white text-xl md:text-2xl lg:text-3xl font-bold">
                 {editingGalleryItem ? 'Edit Gallery Item' : 'Add New Gallery Item'}
               </h1>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <button
                   onClick={handleCancelGalleryEdit}
-                  className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors"
+                  className="px-3 md:px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm md:text-base rounded-lg font-medium transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSaveGalleryItem}
                   disabled={loading}
-                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 text-white rounded-lg font-medium transition-colors"
+                  className="px-3 md:px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 text-white text-sm md:text-base rounded-lg font-medium transition-colors"
                 >
                   {loading ? 'Saving...' : 'Save Item'}
                 </button>
@@ -1149,71 +1149,77 @@ export default function Management() {
         </div>
 
         {/* Tabs */}
-        <div className="flex space-x-1 mb-8">
+        <div className="flex flex-wrap gap-2 mb-8">
           {user?.role === 'admin' ? (
             <>
               <button
                 onClick={() => setActiveTab('blog')}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                className={`px-3 md:px-6 py-2 md:py-3 rounded-lg font-medium transition-colors text-sm md:text-base ${
                   activeTab === 'blog'
                     ? 'bg-green-600 text-white'
                     : 'bg-black/30 text-green-300 hover:bg-black/50'
                 }`}
               >
-                📝 Blog Posts
+                <span className="md:hidden">📝</span>
+                <span className="hidden md:inline">📝 Blog Posts</span>
               </button>
               <button
                 onClick={() => setActiveTab('gallery')}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                className={`px-3 md:px-6 py-2 md:py-3 rounded-lg font-medium transition-colors text-sm md:text-base ${
                   activeTab === 'gallery'
                     ? 'bg-purple-600 text-white'
                     : 'bg-black/30 text-green-300 hover:bg-black/50'
                 }`}
               >
-                📸 Gallery
+                <span className="md:hidden">📸</span>
+                <span className="hidden md:inline">📸 Gallery</span>
               </button>
               <button
                 onClick={() => setActiveTab('payments')}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                className={`px-3 md:px-6 py-2 md:py-3 rounded-lg font-medium transition-colors text-sm md:text-base ${
                   activeTab === 'payments'
                     ? 'bg-orange-600 text-white'
                     : 'bg-black/30 text-green-300 hover:bg-black/50'
                 }`}
               >
-                💰 Payments
+                <span className="md:hidden">💰</span>
+                <span className="hidden md:inline">💰 Payments</span>
               </button>
               <button
                 onClick={() => setActiveTab('users')}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                className={`px-3 md:px-6 py-2 md:py-3 rounded-lg font-medium transition-colors text-sm md:text-base ${
                   activeTab === 'users'
                     ? 'bg-blue-600 text-white'
                     : 'bg-black/30 text-green-300 hover:bg-black/50'
                 }`}
               >
-                👥 Users
+                <span className="md:hidden">👥</span>
+                <span className="hidden md:inline">👥 Users</span>
               </button>
             </>
           ) : (
             <>
               <button
                 onClick={() => setActiveTab('membership')}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                className={`px-3 md:px-6 py-2 md:py-3 rounded-lg font-medium transition-colors text-sm md:text-base ${
                   activeTab === 'membership'
                     ? 'bg-green-600 text-white'
                     : 'bg-black/30 text-green-300 hover:bg-black/50'
                 }`}
               >
-                🔷 My Membership
+                <span className="md:hidden">🔷</span>
+                <span className="hidden md:inline">🔷 My Membership</span>
               </button>
               <button
                 onClick={() => setActiveTab('profile')}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                className={`px-3 md:px-6 py-2 md:py-3 rounded-lg font-medium transition-colors text-sm md:text-base ${
                   activeTab === 'profile'
                     ? 'bg-blue-600 text-white'
                     : 'bg-black/30 text-green-300 hover:bg-black/50'
                 }`}
               >
-                👤 Profile
+                <span className="md:hidden">👤</span>
+                <span className="hidden md:inline">👤 Profile</span>
               </button>
             </>
           )}
@@ -1487,16 +1493,16 @@ export default function Management() {
                             </p>
                           </div>
                           
-                          <div className="flex gap-2 self-start">
+                          <div className="flex flex-wrap gap-2 self-start">
                             <button
                               onClick={() => handleEditPost(post)}
-                              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg font-medium transition-colors min-w-[64px]"
+                              className="px-3 md:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg font-medium transition-colors min-w-[60px]"
                             >
                               Edit
                             </button>
                             <button
                               onClick={() => handleDeletePost(post)}
-                              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg font-medium transition-colors min-w-[64px]"
+                              className="px-3 md:px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg font-medium transition-colors min-w-[60px]"
                             >
                               Delete
                             </button>
@@ -1566,7 +1572,7 @@ export default function Management() {
                         {item.caption || 'No caption'}
                       </p>
                       
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2">
                         <button
                           onClick={() => handleEditGalleryItem(item)}
                           className="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg font-medium transition-colors"
@@ -1653,11 +1659,11 @@ export default function Management() {
                           </div>
                         </div>
                         
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                           {payment.status === 'pending' && (
                             <button
                               onClick={() => handlePaymentAction(payment._id, 'verify')}
-                              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg font-medium transition-colors"
+                              className="px-3 md:px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg font-medium transition-colors"
                             >
                               Verify
                             </button>
@@ -1665,7 +1671,7 @@ export default function Management() {
                           {payment.status !== 'cancelled' && payment.status !== 'completed' && (
                             <button
                               onClick={() => handlePaymentAction(payment._id, 'cancel')}
-                              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg font-medium transition-colors"
+                              className="px-3 md:px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg font-medium transition-colors"
                             >
                               Cancel
                             </button>
@@ -1760,11 +1766,11 @@ export default function Management() {
                           </div>
                         </div>
                         
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                           {user.subscription?.status === 'active' && (
                             <button
                               onClick={() => openUserModal(user, 'cancel_subscription')}
-                              className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white text-sm rounded-lg font-medium transition-colors"
+                              className="px-3 md:px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white text-sm rounded-lg font-medium transition-colors"
                             >
                               Cancel
                             </button>
@@ -1772,14 +1778,14 @@ export default function Management() {
                           {user.subscription?.status === 'cancelled' && (
                             <button
                               onClick={() => openUserModal(user, 'reactivate_subscription')}
-                              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg font-medium transition-colors"
+                              className="px-3 md:px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg font-medium transition-colors"
                             >
                               Reactivate
                             </button>
                           )}
                           <button
                             onClick={() => openUserModal(user, 'update_subscription')}
-                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg font-medium transition-colors"
+                            className="px-3 md:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg font-medium transition-colors"
                           >
                             Edit
                           </button>
